@@ -17,18 +17,20 @@ This document records the functional requirements for UBC Finds. Each requiremen
   - Acceptance: Blue location dot appears only after permission is granted.
 - **R1.5:** The system must display a 'Locate Me' ("where am I?") button in the bottom-right corner of the screen.  
   - Acceptance: Button is visible and tappable on load.
-- **R1.6:** The user's location dot (R1.4) and the 'Locate Me' button (R1.5) must remain visible on the map at all times.  
+- **R1.6:** The "Locate Me" button (R1.5) must remain visible on the map at all times  
   - Acceptance: UI elements persist through map interactions.
+- **R1.7:** The user’s current location, represented by a blue dot (R1.4), must never disappear. It can only be temporarily out of view if the user zooms away from their specific location on the map.
 
 ---
 
 ### 2.0 Sidebar Menu - Empty State (Ref: Sketch 1)
 - **R2.1:** Clicking the 3-grid-line menu icon (R1.3) must open a sidebar menu.  
-- **R2.2:** The sidebar menu must contain a 'Utility' section with a list of filterable utility categories, each with a checkbox.  
-- **R2.3:** The sidebar menu must contain a 'Nearby Utilities' section.  
-- **R2.4:** On initial load, no utility categories must be checked by default.  
-- **R2.5:** While no categories are checked, no utility waypoints must be displayed on the map.  
-- **R2.6:** While no categories are checked, the 'Nearby Utilities' list must be empty or display an empty-state message.  
+- **R2.2:** The sidebar menu must contain a 'Utility' section with a list of filterable utility categories
+- **R2.3:** The "Utility" section in the sidebar menu must have checkboxes as user input. 
+- **R2.4:** The sidebar menu must contain a 'Nearby Utilities' section.  
+- **R2.5:** On initial load, no utility categories must be checked by default.  
+- **R2.6:** While no categories are checked, no utility waypoints must be displayed on the map.  
+- **R2.7:** While no categories are checked, the 'Nearby Utilities' list must be empty or display an empty-state message.  
 
 Acceptance criteria: sidebar opens/closes, filter list renders, default state is empty.
 
@@ -37,10 +39,10 @@ Acceptance criteria: sidebar opens/closes, filter list renders, default state is
 ### 3.0 Sidebar Menu - Active State (Ref: Sketch 2)
 - **R3.1:** Checking a utility category checkbox must cause all waypoints for that category to be displayed on the map.  
 - **R3.2:** Unchecking a utility category checkbox must cause all waypoints for that category to be hidden from the map.  
-- **R3.3:** All displayed waypoints must be color-coded to represent their working status.  
-- **R3.4:** A GREEN highlight must indicate the utility is 'fully working'.  
-- **R3.5:** A YELLOW highlight must indicate 'some issues have been reported'.  
-- **R3.6:** A RED highlight must indicate the utility is 'out of service'.  
+- **R3.3:** All displayed waypoints must be color-coded to represent their working status.
+  - **R3.4:** A GREEN highlight must indicate the utility is 'fully working'.  
+  - **R3.5:** A YELLOW highlight must indicate 'some issues have been reported'.  
+  - **R3.6:** A RED highlight must indicate the utility is 'out of service'.  
 - **R3.7:** The 'Nearby Utilities' list must automatically update to show waypoints from checked categories only.  
 - **R3.8:** The 'Nearby Utilities' list must be scrollable.
 
@@ -58,8 +60,8 @@ Acceptance criteria: closing sidebar preserves map state and shown markers.
 
 ### 5.0 'Find Nearest' Function (Ref: Sketch 4)
 - **R5.1:** Tapping on any empty coordinate on the map must trigger the 'Find Nearest' function.  
-- **R5.2:** The 'Find Nearest' function must identify the two (2) closest utility waypoints for each currently checked utility category.  
-- **R5.3:** The identified nearest waypoints must be highlighted with a red box overlay.
+- **R5.2:** The 'Find Nearest' function must identify the two (2) closest utility waypoints for each currently checked utility category by computing the distance between the user inputted location and all of the currently visible waypoints.  
+- **R5.3:** The identified nearest waypoints for every category must be highlighted with a red box overlay.
 
 Acceptance criteria: tapping empty map returns nearest two per checked category and visually highlights them.
 
@@ -73,6 +75,8 @@ Acceptance criteria: tapping empty map returns nearest two per checked category 
 - **R6.5:** The information menu must contain a 'Navigate' button.  
 - **R6.6:** Clicking the 'Navigate' button must redirect the user to Google Maps navigation for that waypoint's location.  
 - **R6.7:** The information menu must contain a 'Report Issue' button.
+- **R6.8:** Clicking the “Report Issue” must open a reporting menu where users can submit a menu.
+- **R6.9:** Each waypoint must be represented by its corresponding icon in the utility checklist menu.
 
 Acceptance criteria: info menu shows full details and includes Navigate + Report Issue actions.
 
