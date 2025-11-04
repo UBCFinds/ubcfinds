@@ -36,8 +36,7 @@ export function ReportModal({ utility, onClose }: ReportModalProps) {
   const [showReportModal, setShowReportModal] = useState(true); // Added state to control modal visibility
   const [submitting, setSubmitting] = useState(false);
 
-  /* Add report submission to subabase database
-  */
+  /* Add report submission to subabase database*/
   const handleSubmit = async (e: React.FormEvent) => {
     //console.log("Submitting report:", { issueType, description,  utility.name});
     setSubmitting(true);
@@ -89,9 +88,15 @@ export function ReportModal({ utility, onClose }: ReportModalProps) {
                 </CardDescription>
               )}
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-colors"
+                >
               <X className="h-4 w-4" />
             </Button>
+            
           </div>
         </CardHeader>
         <CardContent>

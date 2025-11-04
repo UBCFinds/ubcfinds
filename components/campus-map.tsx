@@ -72,6 +72,7 @@ const mapOptions = {
   ],
   //49.282569, -123.275719
   //49.236203, -123.195687
+
   restriction: {
     latLngBounds: {
       north: 49.292569,
@@ -96,6 +97,7 @@ export function CampusMap() {
     "food",
     "charging",
   ])
+
   const [selectedUtility, setSelectedUtility] = useState<Utility | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [showReportModal, setShowReportModal] = useState(false)
@@ -106,13 +108,11 @@ export function CampusMap() {
   const [showLegend, setShowLegend] = useState(true)
   const [mapLoaded, setMapLoaded] = useState(false)
 
-
-
+  // Custom icon for user's location marker
   const getUserLocationIcon = () => {
     if (typeof window === "undefined" || !window.google || !window.google.maps) {
       return undefined
     }
-  
     return {
       url: "/location_icon.png",
       scaledSize: new window.google.maps.Size(32, 32),
@@ -120,8 +120,6 @@ export function CampusMap() {
     }
   }
   
-
-
   // Get user's location on component mount
   useEffect(() => {
     // Get the user's current location
@@ -278,7 +276,7 @@ const updateUtilitiesWithReports = async () => {
             </Button> */}
             <div>
               <h1 className="text-xl font-bold text-balance">UBC Finds</h1>
-              <p className="text-xs text-muted-foreground">We make it easy to find stuff on campus</p>
+              <p className="text-xs text-muted-foreground">So you dont get left behind</p>
             </div>
           </div>
           <Button
@@ -440,8 +438,8 @@ const updateUtilitiesWithReports = async () => {
 
       {/* Legend */}
       {showLegend && (
-      <Card className="absolute bottom-4 left-4 w-64">
-        <CardHeader className="pb-3 flex justify-between items-center">
+      <Card className="absolute bottom-4 left-4 w-50">
+        <CardHeader className="pb-0 flex justify-between items-center">
           <CardTitle className="text-sm">Map Legend</CardTitle>
             <Button variant="ghost" size="icon" onClick={() => setShowLegend(false)}>
               <X className="h-4 w-4" />
