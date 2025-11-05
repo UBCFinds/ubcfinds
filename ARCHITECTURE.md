@@ -106,8 +106,10 @@ ReportModal is accessed indirectly via report submission.
 
 
 
-Stubs
+Stubs:
+
 Utility-details.tsx
+```
 "use client"
 
 import { MapPin, Clock, AlertTriangle, X } from "lucide-react"
@@ -146,12 +148,11 @@ export function UtilityDetail({ utility, onClose, onReport }: UtilityDetailProps
   )
 }
 
-
-
-
+```
 
 
 campus-map.tsx
+```
 // campus-map.tsx
 import React, { useState, useEffect } from "react";
 import { Utility, UtilityType, mockUtilities } from "./utility-list";
@@ -178,12 +179,11 @@ export function CampusMap() {
     </div>
   );
 }
-
-
+```
 
 
 report-modal.tsx
-
+```
 "use client"
 
 import type React from "react"
@@ -231,12 +231,12 @@ export function ReportModal({ utility, onClose }: ReportModalProps) {
 {/*Html contents*/}
     )
 }
-
+```
 
 
 
 Theme-provider.tsx
-
+```
 'use client'
 
 import * as React from 'react'
@@ -248,13 +248,11 @@ import {
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   return <NextThemesProvider {...props}>{children}</NextThemesProvider>
 }
-
-
+```
 
 
 utility-list.ts
-
-
+```
 // Defines what types of utilities are available and their structure
 export type UtilityType = "water" | "bike" | "washroom" | "emergency" | "food" | "charging"
 
@@ -276,4 +274,4 @@ export const mockUtilities: Utility[] = [
 //returns all utility details
        },
   ]
-
+```
