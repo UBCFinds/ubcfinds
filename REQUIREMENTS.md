@@ -9,7 +9,7 @@ This document records the functional requirements for UBC Finds. Each requiremen
 ### 1.0 Initial Application State (Ref: Sketch 0)
 - **R1.1:** The system must display an interactive map of the UBC campus upon initial load.  
   - Acceptance: Map tiles and controls render and are interactive.
-- **R1.2:** The map must be centered on the UBC campus by default.  
+- **R1.2:** The map must be centered on the user's location by default.  
   - Acceptance: Initial center coordinates point to the campus center.
 - **R1.3:** The system must display a 3-grid-line menu icon in the top-left corner of the screen.  
   - Acceptance: Icon is visible and clickable on load.
