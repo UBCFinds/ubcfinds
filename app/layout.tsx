@@ -7,7 +7,7 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "UBC Campus Finder - Find Utilities on Campus",
+  title: "UBC Finds",
   description: "Simplifying navigation for utilities on campus. We make it easy to find stuff on campus.",
   generator: "v0.app",
 }

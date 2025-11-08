@@ -66,4 +66,9 @@ Add these to your Vercel project or `.env` file:
 - Tailwind CSS 4.1.9
 - shadcn/ui components
 - Google Maps JavaScript API
-- @react-google-maps/api
+
+## Libraries & Dependencies
+
+- @react-google-maps/api — React wrapper for the Google Maps JavaScript API
+- shadcn/ui — UI component primitives used across the app
+- @supabase/supabase-js — Supabase client library
