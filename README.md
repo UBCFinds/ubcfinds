@@ -4,6 +4,8 @@
 
 # Project **UBC Finds** - Team Polaris
 
+**Live Site:** [ubcfinds.vercel.app](https://ubcfinds.vercel.app)
+
 ### Mission Statement 
 *Simplifying navigation for utilities on campus to enhance accessibility and reduce frustration.*
 
