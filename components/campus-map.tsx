@@ -33,10 +33,10 @@ const categories = [
   { id: "bike", label: "Bike Storage", icon: Bike, color: "text-[#10B981]"},
   { id: "emergency", label: "Emergency", icon: AlertCircle, color: "text-[#EF4444]" },
   { id: "food", label: "Food & Drink", icon: Coffee, color: "text-[#F97316]"},
-  { id: "charging", label: "Charging Stations", icon: Zap, color: "text-[#F59E0B]" },
-  { id: "parking", label: "Parking Lots", icon: ParkingCircle, color: "text-[#f7fffd]"},
-  { id: "bus", label: "Bus Stops and Stations", icon: BusFrontIcon, color: "text-[#06B6D4]"},
-  { id: "bank", label: "ATMS and Banks", icon: DollarSign, color: "text-[#EC4899]"}
+  //{ id: "charging", label: "Charging Stations", icon: Zap, color: "text-[#F59E0B]" },
+  { id: "parking", label: "Parking Lots", icon: ParkingCircle, color: "text-yellow-400"},
+  { id: "bus", label: "Bus Stops and Stations", icon: BusFrontIcon, color: "text-[#ffffff]"},
+  //{ id: "bank", label: "ATMS and Banks", icon: DollarSign, color: "text-[#EC4899]"}
 ]
 
 const colors = {
@@ -273,7 +273,7 @@ const updateUtilitiesWithReports = async () => {
             </Button> */}
             <div>
               <h1 className="text-xl font-bold text-balance">UBC Finds</h1>
-              <p className="text-xs text-muted-foreground">So you dont get left behind</p>
+              <p className="text-xs text-muted-foreground">So you don't get left behind.</p>
             </div>
           </div>
           <Button
@@ -380,7 +380,7 @@ const updateUtilitiesWithReports = async () => {
             </div>
           </div>
           <footer className="text-center text-xs text-gray-500 py-4 border-t">
-          © {new Date().getFullYear()} UBC Finder. All rights reserved.  
+          © {new Date().getFullYear()} UBC Finds. All rights reserved.  
           This project is student-developed and not officially affiliated with the University of British Columbia.
         </footer>
         </div>
