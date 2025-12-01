@@ -105,4 +105,15 @@ export const mockUtilities: Utility[] = [
       reports: 0,
       lastChecked: "4 hours ago",
     },
+    {
+      id: "20",
+      name: "Charging Station 2",
+      type: "charging",
+      building: "Marine Drive 2",
+      floor: "4",
+      position: {lat: 49.26192, lng: -123.25675},
+      status: "working",
+      reports: 0,
+      lastChecked: "3 hours ago"
+    }
   ]
