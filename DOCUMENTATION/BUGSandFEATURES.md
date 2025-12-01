@@ -15,7 +15,8 @@ We found out that this implementation is pretty simple to do on the backend, but
 
 There are also a few bugs that we are aware of, but don't have the time to fix. 
 
-1. There is an SQL error involved with our google maps API.
+1. There is a runtime error involved with our google maps API. We're not entirely sure what causes it, especially because it only happened when we repeatedly reloaded the page (frontend testing). Below is what the error looked on our webpage, and recently, we haven't been able to recreate it. We don't know if we fixed it, or if it's still there, but this is what it looks like.
+![alt text](image-11.png)
 
 2. There is a visual bug on the utility detail menu. Below is a photo of what the menu looks like for a utility with a short building name and location description. 
 ![alt text](image-10.png)
