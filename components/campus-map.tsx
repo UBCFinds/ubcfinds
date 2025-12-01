@@ -2,7 +2,7 @@
 
 // Import all libraries and components
 import { useState, useEffect } from "react"
-import { Search, Droplet, Bike, MapPin, AlertCircle, Coffee, Zap, Menu, X, ZoomIn, ZoomInIcon } from "lucide-react"
+import { Search, Droplet, Bike, MapPin, AlertCircle, Coffee, Zap, Menu, X, ZoomIn, ZoomInIcon, MicrowaveIcon, ParkingCircle, BusFrontIcon, DollarSign } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -28,12 +28,15 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Categories for filtering utilities 
 const categories = [
-  { id: "water", label: "Water Stations", icon: Droplet, color: "text-blue-400" },
-  { id: "bike", label: "Bike Storage", icon: Bike, color: "text-green-400" },
-  { id: "washroom", label: "Washrooms", icon: MapPin, color: "text-purple-400" },
-  { id: "emergency", label: "Emergency", icon: AlertCircle, color: "text-red-400" },
-  { id: "food", label: "Food & Drink", icon: Coffee, color: "text-orange-400" },
-  { id: "charging", label: "Charging Stations", icon: Zap, color: "text-yellow-400" },
+  { id: "water", label: "Water Stations", icon: Droplet, color: "text-[#3B82F6]"},
+  { id: "microwave", label: "Microwaves", icon: MicrowaveIcon, color: "text-[#8B5CF6]"},
+  { id: "bike", label: "Bike Storage", icon: Bike, color: "text-[#10B981]"},
+  { id: "emergency", label: "Emergency", icon: AlertCircle, color: "text-[#EF4444]" },
+  { id: "food", label: "Food & Drink", icon: Coffee, color: "text-[#F97316]"},
+  //{ id: "charging", label: "Charging Stations", icon: Zap, color: "text-[#F59E0B]" },
+  { id: "parking", label: "Parking Lots", icon: ParkingCircle, color: "text-yellow-400"},
+  { id: "bus", label: "Bus Stops and Stations", icon: BusFrontIcon, color: "text-[#ffffff]"},
+  //{ id: "bank", label: "ATMS and Banks", icon: DollarSign, color: "text-[#EC4899]"}
 ]
 
 const colors = {
@@ -90,12 +93,6 @@ export function CampusMap() {
 
   // Literally just an fsm 
   const [selectedCategories, setSelectedCategories] = useState<UtilityType[]>([
-    "water",
-    "bike",
-    "washroom",
-    "emergency",
-    "food",
-    "charging",
   ])
 
   const [selectedUtility, setSelectedUtility] = useState<Utility | null>(null)
@@ -276,7 +273,7 @@ const updateUtilitiesWithReports = async () => {
             </Button> */}
             <div>
               <h1 className="text-xl font-bold text-balance">UBC Finds</h1>
-              <p className="text-xs text-muted-foreground">So you dont get left behind</p>
+              <p className="text-xs text-muted-foreground">So you don't get left behind.</p>
             </div>
           </div>
           <Button
@@ -383,7 +380,7 @@ const updateUtilitiesWithReports = async () => {
             </div>
           </div>
           <footer className="text-center text-xs text-gray-500 py-4 border-t">
-          © {new Date().getFullYear()} UBC Finder. All rights reserved.  
+          © {new Date().getFullYear()} UBC Finds. All rights reserved.  
           This project is student-developed and not officially affiliated with the University of British Columbia.
         </footer>
         </div>
