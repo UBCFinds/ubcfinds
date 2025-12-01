@@ -22,7 +22,7 @@ This document outlines the individual contributions of each team member to the *
 
 ### Ahnaf
 **Role:** Designer
-
+ 
 *   **Summary of Contributions:**
     *   Designed the solution states and drew up the general webpage front-end.
     *   Revised requirements and translated problem statements into code requirements.
@@ -32,6 +32,7 @@ This document outlines the individual contributions of each team member to the *
 *   **Key Features Implemented:**
     *   General webpage front-end design.
     *   Utility data instances for map.
+    *   Documentation revisions and deliverable management.
 
 ### Anant
 **Role:** Lead Developer
