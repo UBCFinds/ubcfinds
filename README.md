@@ -27,3 +27,20 @@ The failure to quickly locate essential utilities, such as water refill stations
 - Category filtering and search functionality
 - User feedback system for reporting broken utilities
 - Mobile-responsive design with collapsible sidebar
+
+## Project Documentation & Deliverables
+
+### Milestone 1: Inception & Design
+*   [Design Specification](DOCUMENTATION/DESIGN_SPECIFICATION.md) - Initial solution design and team structure.
+
+### Milestone 2: Requirements & Architecture
+*   [Requirements](DOCUMENTATION/REQUIREMENTS.md) - Functional and non-functional requirements.
+*   [Architecture](DOCUMENTATION/ARCHITECTURE.md) - System architecture and component design.
+
+### Milestone 3: Planning
+*   [Project Plan](DOCUMENTATION/PLAN.md) - Development roadmap and timeline.
+
+### Milestone 4: Release
+*   [Setup & Installation](DOCUMENTATION/SETUP.md) - Comprehensive guide for developers and users.
+*   [Bugs & Features](DOCUMENTATION/BUGSANDFEATURES.md) - Known issues and features removed from MVP.
+*   [Contributions](DOCUMENTATION/CONTRIBUTIONS.md) - Individual team member contributions.
