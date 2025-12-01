@@ -10,7 +10,8 @@
 ### Team Roles
 **Project Manager:** Adam \
 **Designer:** Ahnaf \
-**Developers:** Anant, Viren, Max
+**Lead Developer:** Anant \
+**Developers:** Viren, Max
 
 ### Problem Statement
 
