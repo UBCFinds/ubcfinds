@@ -406,7 +406,7 @@ const updateUtilitiesWithReports = async () => {
 
           {/* Utility List */}
           <div>
-            <h3 className="text-sm font-semibold mb-3">Nearby Utilities ({filteredUtilities.length})</h3>
+            <h3 className="text-sm font-semibold mb-3">Individual Utilities ({filteredUtilities.length})</h3>
             <div className="space-y-2">
               {filteredUtilities.map((utility) => (
                 <button
