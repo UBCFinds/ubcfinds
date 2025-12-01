@@ -113,14 +113,14 @@ export function UtilityDetail({ utility, onClose, onReport }: UtilityDetailProps
             </Button>
           </div>
         </div>
-
-        <div className="pt-2 border-t border-border">
+        
+        {/* <div className="pt-2 border-t border-border">
           <h4 className="text-sm font-semibold mb-2">Additional Info</h4>
           <div className="text-xs text-muted-foreground space-y-1">
             <p>• Wheelchair accessible</p>
             <p>• Well-lit area</p>
           </div>
-        </div>
+        </div> */}
       </CardContent>
     </Card>
   )
