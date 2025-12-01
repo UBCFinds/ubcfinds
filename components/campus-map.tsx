@@ -93,16 +93,6 @@ export function CampusMap() {
 
   // Literally just an fsm 
   const [selectedCategories, setSelectedCategories] = useState<UtilityType[]>([
-    "water",
-    "bike",
-    "washroom",
-    "emergency",
-    "food",
-    "charging",
-    "microwave",
-    "bus",
-    "bank",
-    "parking"
   ])
 
   const [selectedUtility, setSelectedUtility] = useState<Utility | null>(null)
