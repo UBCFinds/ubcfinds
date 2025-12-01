@@ -105,7 +105,13 @@ export function CampusMap() {
   const [showLegend, setShowLegend] = useState(true)
   const [mapLoaded, setMapLoaded] = useState(false)
 
-  // Custom icon for user's location marker
+  /**
+   * Generates the icon for the user's current location.
+   * 
+   * @requires window.google must be loaded.
+   * @effects Returns a google.maps.Icon object configured with the custom 
+   *          "/location_icon.png", scaled to 32x32px.
+   */
   const getUserLocationIcon = () => {
     if (typeof window === "undefined" || !window.google || !window.google.maps) {
       return undefined
@@ -143,7 +149,16 @@ export function CampusMap() {
     updateUtilitiesWithReports();
   }, [])
 
-// Updates the utilitites with the number of reports from the database
+  /**
+   * Updates the utilities state with report counts from the database.
+   * 
+   * @requires Supabase client must be initialized.
+   * @modifies utilities state.
+   * @effects Asynchronously fetches all reports from the database. 
+   *          Aggregates report counts by util_id. 
+   *          Updates the local utilities state, setting the reports count 
+   *          and changing status to "reported" if reports > 0.
+   */
 const updateUtilitiesWithReports = async () => {
   try {
     // Fetch all reports
@@ -176,9 +191,15 @@ const updateUtilitiesWithReports = async () => {
 };
   
 
-  // Toggle category selection for filtering
-  // If category is already selected, remove it; otherwise, add it
-  // why am I even commenting this lmao (auto-suggested comment btw I had to include it)
+  /**
+   * Toggles the selection of a utility category.
+   * 
+   * @param categoryId - The ID of the category to toggle.
+   * @requires categoryId must be a valid UtilityType.
+   * @modifies selectedCategories state.
+   * @effects Toggles the presence of categoryId in the selectedCategories array. 
+   *          If present, it is removed; if absent, it is added.
+   */
   const toggleCategory = (categoryId: UtilityType) => {
     setSelectedCategories((prev) =>
       prev.includes(categoryId) ? prev.filter((id) => id !== categoryId) : [...prev, categoryId],
@@ -197,6 +218,14 @@ const updateUtilitiesWithReports = async () => {
   );
   
   
+  /**
+   * Retrieves the color associated with a utility category.
+   * 
+   * @param type - The utility type to get the color for.
+   * @requires type is a valid UtilityType.
+   * @effects Returns the specific Tailwind CSS color class string associated with the given utility type. 
+   *          Returns a default gray color if the type is not found.
+   */
   const getCategoryColor = (type: UtilityType) => {
     return categories.find((cat) => cat.id === type)?.color || "text-gray-400"
   }
@@ -209,6 +238,16 @@ const updateUtilitiesWithReports = async () => {
   }
 
 
+  /**
+   * Generates the marker icon configuration for a utility.
+   * 
+   * @param utility - The utility object to generate the icon for.
+   * @requires utility is a valid object. window.google and window.google.maps must be loaded.
+   * @effects Returns a google.maps.Symbol object defining the marker's visual appearance.
+   *          - Color: Yellow if status is 'reported', Blue otherwise.
+   *          - Stroke: Dark brown if selected, White otherwise.
+   *          - Scale: 12 if selected, 8 otherwise.
+   */
   const getMarkerIcon = (utility: Utility) => {
     if (typeof window === "undefined" || !window.google) {
       return undefined
@@ -230,6 +269,15 @@ const updateUtilitiesWithReports = async () => {
     
   }
 
+  /**
+   * Fetches the latest data for a specific utility from the database.
+   * 
+   * @param utility - The utility to update.
+   * @requires utility has a valid id. Supabase client is initialized.
+   * @effects Asynchronously fetches the latest report count for the specific utility from the database. 
+   *          Returns a new Utility object with the updated report count. 
+   *          Returns undefined if the fetch fails.
+   */
   const updateUtil = async (utility: Utility) => {
     const { data, error } = await supabase
       .from("reports")
@@ -247,7 +295,16 @@ const updateUtilitiesWithReports = async () => {
   
 
 
-  // Handle what happens when a utility is selected
+  /**
+   * Handles the selection of a utility marker.
+   * 
+   * @param utility - The selected utility.
+   * @requires utility is a valid object with a position.
+   * @modifies selectedUtility state, Map view (zoom and center).
+   * @effects Sets the selectedUtility state. 
+   *          If the map instance is ready, zooms to level 15 and pans the map 
+   *          to the utility's location (with a +0.003 latitude offset).
+   */
   const handleUtilitySelect = (utility: Utility) => {
     console.log("Handling utility selection for:", utility)
     console.log("Current map instance:", map)

@@ -36,7 +36,18 @@ export function ReportModal({ utility, onClose }: ReportModalProps) {
   const [showReportModal, setShowReportModal] = useState(true); // Added state to control modal visibility
   const [submitting, setSubmitting] = useState(false);
 
-  /* Add report submission to subabase database*/
+  /**
+   * Handles the submission of a utility report.
+   * 
+   * @param e - The form submission event.
+   * @requires e is a valid form event. utility prop is defined (or handles null).
+   * @modifies submitting, submitted, description, issueType states. Supabase database.
+   * @effects Prevents default form submission. 
+   *          Inserts a new record into the reports table with the current timestamp, 
+   *          utility ID, issue type, and description. 
+   *          On success, resets form fields and closes the modal. 
+   *          On failure, logs the error.
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     //console.log("Submitting report:", { issueType, description,  utility.name});
     setSubmitting(true);
