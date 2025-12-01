@@ -34,7 +34,7 @@ const categories = [
   { id: "emergency", label: "Emergency", icon: AlertCircle, color: "text-[#EF4444]" },
   { id: "food", label: "Food & Drink", icon: Coffee, color: "text-[#F97316]"},
   { id: "charging", label: "Charging Stations", icon: Zap, color: "text-[#F59E0B]" },
-  { id: "parking,", label: "Parking Lots", icon: ParkingCircle, color: "text-[#f7fffd]"},
+  { id: "parking", label: "Parking Lots", icon: ParkingCircle, color: "text-[#f7fffd]"},
   { id: "bus", label: "Bus Stops and Stations", icon: BusFrontIcon, color: "text-[#06B6D4]"},
   { id: "bank", label: "ATMS and Banks", icon: DollarSign, color: "text-[#EC4899]"}
 ]
@@ -99,7 +99,10 @@ export function CampusMap() {
     "emergency",
     "food",
     "charging",
-    "microwave"
+    "microwave",
+    "bus",
+    "bank",
+    "parking"
   ])
 
   const [selectedUtility, setSelectedUtility] = useState<Utility | null>(null)
