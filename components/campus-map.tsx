@@ -13,6 +13,7 @@ import { ReportModal } from "@/components/report-modal"
 import { Data, GoogleMap, LoadScript, Marker } from "@react-google-maps/api"
 import { mockUtilities, Utility, UtilityType } from "@/components/utility-list"
 import { createClient } from '@supabase/supabase-js';
+import { categories, colors, toggleCategory as toggleCategoryLogic, getCategoryColor as getCategoryColorLogic, filterUtilities, getMarkerIcon as getMarkerIconLogic } from "@/lib/map-logic"
 
 
 // Setup supabase client
@@ -24,28 +25,6 @@ if (!supabaseUrl || !supabaseKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
-
-
-// Categories for filtering utilities 
-const categories = [
-  { id: "water", label: "Water Stations", icon: Droplet, color: "text-[#3B82F6]"},
-  { id: "microwave", label: "Microwaves", icon: MicrowaveIcon, color: "text-[#8B5CF6]"},
-  { id: "bike", label: "Bike Storage", icon: Bike, color: "text-[#10B981]"},
-  { id: "emergency", label: "Emergency", icon: AlertCircle, color: "text-[#EF4444]" },
-  { id: "food", label: "Food & Drink", icon: Coffee, color: "text-[#F97316]"},
-  //{ id: "charging", label: "Charging Stations", icon: Zap, color: "text-[#F59E0B]" },
-  { id: "parking", label: "Parking Lots", icon: ParkingCircle, color: "text-yellow-400"},
-  { id: "bus", label: "Bus Stops and Stations", icon: BusFrontIcon, color: "text-[#ffffff]"},
-  //{ id: "bank", label: "ATMS and Banks", icon: DollarSign, color: "text-[#EC4899]"}
-]
-
-const colors = {
-  blue: "#3b82f6", // working
-  yellow: "#FFA500", // reported
-  dark_brown: "#393424", // selected outline
-  white: "#FFFFFF", // default outline
-
-}
 
 // Map container style and options
 const mapContainerStyle = {
@@ -201,21 +180,13 @@ const updateUtilitiesWithReports = async () => {
    *          If present, it is removed; if absent, it is added.
    */
   const toggleCategory = (categoryId: UtilityType) => {
-    setSelectedCategories((prev) =>
-      prev.includes(categoryId) ? prev.filter((id) => id !== categoryId) : [...prev, categoryId],
-    )
+    setSelectedCategories((prev) => toggleCategoryLogic(prev, categoryId))
   }
 
   // Filter utilities based on selected categories and search query
   // Checks if the utility type is in selected categories and if the name or building includes the search query
   // Only checks the search if the search query is not empty
-  const filteredUtilities = utilities.filter(
-    (u) =>
-      selectedCategories.includes(u.type) &&
-      (searchQuery === "" ||
-        u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        u.building.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredUtilities = filterUtilities(utilities, selectedCategories, searchQuery);
   
   
   /**
@@ -227,7 +198,7 @@ const updateUtilitiesWithReports = async () => {
    *          Returns a default gray color if the type is not found.
    */
   const getCategoryColor = (type: UtilityType) => {
-    return categories.find((cat) => cat.id === type)?.color || "text-gray-400"
+    return getCategoryColorLogic(type)
   }
 
   // Loads an instance of the map
@@ -249,24 +220,11 @@ const updateUtilitiesWithReports = async () => {
    *          - Scale: 12 if selected, 8 otherwise.
    */
   const getMarkerIcon = (utility: Utility) => {
-    if (typeof window === "undefined" || !window.google) {
+    if (typeof window === "undefined" || !window.google || !window.google.maps) {
       return undefined
     }
 
-    // Get color based on utility status
-    //const baseColor = utility.status === "reported" ? "#ef4444" : "#3b82f6"
-    const baseColor = utility.status === "reported" ? colors.yellow : colors.blue
-
-    return {
-      path: window.google.maps.SymbolPath.CIRCLE,
-      fillColor: baseColor,
-      fillOpacity: 1,
-      //strokeColor: "#ffffff",
-      strokeColor: selectedUtility?.id == utility.id ? colors.dark_brown : colors.white, // green outline when selected
-      strokeWeight: 2,
-      scale: selectedUtility?.id == utility.id ? 12 : 8,
-    }
-    
+    return getMarkerIconLogic(utility, selectedUtility?.id, window.google.maps)
   }
 
   /**
