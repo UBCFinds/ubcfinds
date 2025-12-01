@@ -1,8 +1,8 @@
 
 // Defines what types of utilities are available and their structure
-export type UtilityType = "water" | "bike" | "washroom" | "emergency" | "food" | "charging"
+export type UtilityType = "water" | "bike" | "washroom" | "emergency" | "food" | "charging" | "microwave" | "bus" | "bank"
 
-//pushing random
+
 // Defines Utility data structure
 export interface Utility {
     id: string
@@ -106,11 +106,11 @@ export const mockUtilities: Utility[] = [
       lastChecked: "4 hours ago",
     },
     {
-      id: "20",
-      name: "Charging Station 2",
-      type: "charging",
+      id: "9",
+      name: "Microwave 1",
+      type: "microwave",
       building: "Marine Drive 2",
-      floor: "4",
+      floor: "floor 4",
       position: {lat: 49.26192, lng: -123.25675},
       status: "working",
       reports: 0,
