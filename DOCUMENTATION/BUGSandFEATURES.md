@@ -15,4 +15,12 @@ We found out that this implementation is pretty simple to do on the backend, but
 
 There are also a few bugs that we are aware of, but don't have the time to fix. 
 
-1. There is an SQL error involved with our google maps API that has a 
+1. There is an SQL error involved with our google maps API.
+
+2. There is a visual bug on the utility detail menu. Below is a photo of what the menu looks like for a utility with a short building name and location description. 
+![alt text](image-10.png)
+    
+    Below is a photo of what the menu looks like for a utility with a very long building name/location description.
+![alt text](image-9.png)
+
+    As you can see (or rather, can't see), the little pin icon next to the building name is barely visible when the text is on the longer side. This bug became evident after we implemented all of our individual utilities and performed our manual frontend testing. In any case, we found this too late and are unable to fix it in time.
