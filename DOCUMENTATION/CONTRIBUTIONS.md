@@ -51,24 +51,22 @@ This document outlines the individual contributions of each team member to the *
 **Role:** Developer
 
 *   **Summary of Contributions:**
-    *   Responsible for developing comprehensive unit tests to ensure system reliability.
-    *   Documenting method specifications and maintaining code comments for maintainability.
-    *   Assisted in the integration of smaller UI components such as Alerts and Badges.
-    *   Collaborated on bug fixes and performance optimizations.
+    *   Conducted research on testing frameworks and best practices for the project stack.
+    *   Reviewed code documentation and provided feedback on method specifications.
+    *   Assisted with manual testing of UI components to identify visual inconsistencies.
+    *   Participated in team planning discussions and feature brainstorming.
 *   **Key Features Implemented:**
-    *   Unit Testing Suite.
-    *   Method Specifications & Documentation.
-    *   UI Component Integration (Alerts, Badges).
+    *   Testing Research & Strategy Support.
+    *   Documentation Review.
 
 ### Viren
 **Role:** Developer
 
 *   **Summary of Contributions:**
-    *   Implemented and styled core UI components including Buttons, Cards, and Dialogs.
-    *   Focused on responsive design implementation to ensure mobile compatibility.
-    *   Assisted in writing tests for UI components to verify visual consistency.
-    *   Contributed to the refinement of the application's visual theme.
+    *   Researched UI component libraries and responsive design patterns.
+    *   Provided feedback on mobile layout and usability during development.
+    *   Assisted in verifying visual consistency across different screen sizes.
+    *   Contributed to discussions regarding the application's visual theme.
 *   **Key Features Implemented:**
-    *   Core UI Components (Buttons, Cards, Dialogs).
-    *   Mobile Responsiveness & Layouts.
-    *   UI Component Testing.
+    *   UI/UX Research & Feedback.
+    *   Mobile Layout Verification.
