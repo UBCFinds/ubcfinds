@@ -84,6 +84,7 @@ export function CampusMap() {
   ])
 
   const [selectedUtility, setSelectedUtility] = useState<Utility | null>(null)
+  const [reportingUtility, setReportingUtility] = useState<Utility | null>(null);
   const [searchQuery, setSearchQuery] = useState("")
   const [showReportModal, setShowReportModal] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -298,6 +299,17 @@ const updateUtilitiesWithReports = async () => {
     }
   }
 
+  // Update your report trigger function
+  const handleOpenReport = (utility: Utility | null) => {
+    setReportingUtility(utility); // Lock in the specific utility
+    setShowReportModal(true);
+    
+    // Optimization for mobile: Close the info drawer so it doesn't block the screen
+    if (isMobile) {
+      setSelectedUtility(null); 
+    }
+  };
+
   // Update the center logic in the GoogleMap component
   const getInitialCenter = () => {
     if (userLocation && isPointInUBC(userLocation.lat, userLocation.lng)) {
@@ -395,7 +407,7 @@ const updateUtilitiesWithReports = async () => {
               {userLocation && mapLoaded && isPointInUBC(userLocation.lat, userLocation.lng) && (
                   <Marker position={userLocation} icon={getUserLocationIcon()} />
               )}
-              
+
               {filteredUtilities.map((utility) => (
                 <Marker
                   key={utility.id}
@@ -438,11 +450,22 @@ const updateUtilitiesWithReports = async () => {
         utility={selectedUtility}
         isMobile={isMobile} // Pass the responsive flag
         onClose={() => setSelectedUtility(null)}
-        onReport={() => setShowReportModal(true)}
+        onReport={() => handleOpenReport(selectedUtility)}
         // onGetDirections is removed because the component handles it internally now
       />
     )}
-      {showReportModal && <ReportModal utility={selectedUtility} onClose={() => setShowReportModal(false)} />}
+
+    {/* Report Modal */}
+    {showReportModal && (
+      <ReportModal 
+        utility={reportingUtility} // Use reportingUtility instead of selectedUtility
+        onClose={() => {
+          setShowReportModal(false);
+          setReportingUtility(null); // Clear it only when the modal is actually closed
+        }} 
+      />
+    )}
+    
     </div>
   )
 }
