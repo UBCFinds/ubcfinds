@@ -267,7 +267,7 @@ const updateUtilitiesWithReports = async () => {
   
       if (isMobile) {
         // Push the center DOWN so the marker appears in the TOP half of the screen
-        const latOffset = -0.002 * Math.pow(2, 15 - currentZoom);
+        const latOffset = -0.004 * Math.pow(2, 15 - currentZoom);
         map.panTo({ 
           lat: utility.position.lat + latOffset, 
           lng: utility.position.lng 
