@@ -81,7 +81,12 @@ export function UtilityDetail({ utility, onClose, onReport, isMobile }: UtilityD
   // --- MOBILE DRAWER VERSION ---
   if (isMobile) {
     return (
-      <Drawer open={!!utility} onOpenChange={(open) => !open && onClose()} modal={false}>
+      <Drawer
+        open={!!utility}
+        onOpenChange={(open) => !open && onClose()}
+        modal={false}
+        dismissible={true}
+        >
         <DrawerContent className="max-h-[45vh] bg-card/95 backdrop-blur-md border-t border-border">
           <div className="mx-auto w-12 h-1.5 bg-muted rounded-full my-4" />
           <DrawerHeader className="text-left px-6">

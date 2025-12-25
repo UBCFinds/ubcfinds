@@ -30,6 +30,13 @@ const ubcCenter = {
   lng: -123.246,
 }
 
+const UBC_BOUNDS = {
+  north: 49.292569,
+  south: 49.236203,
+  east: -123.195687,
+  west: -123.285719,
+};
+
 // Map options including restrictions to UBC campus area
 const mapOptions = {
   gestureHandling: 'greedy',
@@ -58,6 +65,15 @@ const mapOptions = {
     strictBounds: true,
   },
 }
+
+const isPointInUBC = (lat: number, lng: number) => {
+  return (
+    lat <= UBC_BOUNDS.north &&
+    lat >= UBC_BOUNDS.south &&
+    lng <= UBC_BOUNDS.east &&
+    lng >= UBC_BOUNDS.west
+  );
+};
 
 // Main CampusMap component 
 // Renders the map, sidebar, and handles state management
@@ -282,6 +298,14 @@ const updateUtilitiesWithReports = async () => {
     }
   }
 
+  // Update the center logic in the GoogleMap component
+  const getInitialCenter = () => {
+    if (userLocation && isPointInUBC(userLocation.lat, userLocation.lng)) {
+      return userLocation;
+    }
+    return ubcCenter;
+  };
+
   // Helper to wrap the props we need to pass down
   const sidebarProps = {
     searchQuery,
@@ -360,16 +384,18 @@ const updateUtilitiesWithReports = async () => {
           (!isMobile && sidebarOpen) ? "left-80" : "left-0"
         )}>
           <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ""}>
-            <GoogleMap
-              mapContainerStyle={mapContainerStyle}
-              center={userLocation || ubcCenter}
-              zoom={userLocation ? 16 : 15}
-              options={mapOptions}
-              onLoad={onLoad}
-            >
-              {userLocation && mapLoaded && (
-                <Marker position={userLocation} icon={getUserLocationIcon()} />
+          <GoogleMap
+            mapContainerStyle={mapContainerStyle}
+            center={getInitialCenter()} // Use the checked location
+            zoom={userLocation && isPointInUBC(userLocation.lat, userLocation.lng) ? 16 : 15}
+            options={mapOptions}
+            onLoad={onLoad}
+          >
+              {/* Only show the blue dot if they are on campus to avoid confusion */}
+              {userLocation && mapLoaded && isPointInUBC(userLocation.lat, userLocation.lng) && (
+                  <Marker position={userLocation} icon={getUserLocationIcon()} />
               )}
+              
               {filteredUtilities.map((utility) => (
                 <Marker
                   key={utility.id}
