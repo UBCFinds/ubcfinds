@@ -246,7 +246,6 @@ const updateUtilitiesWithReports = async () => {
   }
   
 
-
   /**
    * Handles the selection of a utility marker.
    * 
@@ -262,18 +261,18 @@ const updateUtilitiesWithReports = async () => {
   
     if (map) {
       const zoom = map.getZoom() ?? 15;
-      const currentZoom = zoom < 15 ? 15 : zoom;
+      const currentZoom = zoom < 16 ? 16 : zoom; // Zoom in slightly more for detail
       map.setZoom(currentZoom);
   
       if (isMobile) {
-        // Push the center DOWN so the marker appears in the TOP half of the screen
-        const latOffset = -0.004 * Math.pow(2, 15 - currentZoom);
+        // Lattitude Offset: -0.006 pushes the "center" way down, 
+        // effectively moving the marker to the top of the phone screen.
+        const latOffset = -0.0035 * Math.pow(2, 15 - currentZoom);
         map.panTo({ 
           lat: utility.position.lat + latOffset, 
           lng: utility.position.lng 
         });
       } else {
-        // Desktop: Keep the side offset for the sidebar
         const lngOffset = 0.003 * Math.pow(2, 15 - currentZoom);
         map.panTo({ 
           lat: utility.position.lat, 
