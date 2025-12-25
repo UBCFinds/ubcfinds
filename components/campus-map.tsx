@@ -12,19 +12,11 @@ import { UtilityDetail } from "@/components/utility-detail"
 import { ReportModal } from "@/components/report-modal"
 import { Data, GoogleMap, LoadScript, Marker } from "@react-google-maps/api"
 import { mockUtilities, Utility, UtilityType } from "@/components/utility-list"
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from "@/lib/supabase";
 import { categories, colors, toggleCategory as toggleCategoryLogic, getCategoryColor as getCategoryColorLogic, filterUtilities, getMarkerIcon as getMarkerIconLogic } from "@/lib/map-logic"
-
-
-// Setup supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error("Supabase URL or Key is missing in environment variables.");
-}
-
-export const supabase = createClient(supabaseUrl, supabaseKey);
+import { useIsMobile } from "@/hooks/use-mobile"
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
+import { UtilitySidebarContent } from "@/components/utility-sidebar-content"
 
 // Map container style and options
 const mapContainerStyle = {
@@ -80,10 +72,11 @@ export function CampusMap() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [map, setMap] = useState<google.maps.Map | null>(null)
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
-  const [utilities, setUtilities] = useState<Utility[]>([])
+  const [utilities, setUtilities] = useState<Utility[]>(mockUtilities)
   const [showLegend, setShowLegend] = useState(true)
   const [mapLoaded, setMapLoaded] = useState(false)
-
+  const isMobile = useIsMobile();
+  
   /**
    * Generates the icon for the user's current location.
    * 
@@ -276,219 +269,139 @@ const updateUtilitiesWithReports = async () => {
     
   }
 
+  // Helper to wrap the props we need to pass down
+  const sidebarProps = {
+    searchQuery,
+    setSearchQuery,
+    selectedCategories,
+    toggleCategory,
+    filteredUtilities,
+    selectedUtilityId: selectedUtility?.id,
+    handleUtilitySelect,
+    utilities,
+  }
+
   return (
-    <div className="relative h-full w-full bg-background">
+    <div className="relative h-screen w-full flex flex-col overflow-hidden">
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-20 bg-card/95 backdrop-blur-sm border-b border-border">
         <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
-             {/* Old toggle button - hidden cuz its duplicated */}
-            {/* <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(!sidebarOpen)}>
-              {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button> */}
-            <div>
-              <h1 className="text-xl font-bold text-balance">UBC Finds</h1>
-              <p className="text-xs text-muted-foreground">So you don't get left behind.</p>
-            </div>
+          <div>
+            <h1 className="text-xl font-bold">UBC Finds</h1>
+            <p className="text-xs text-muted-foreground">So you don't get left behind.</p>
           </div>
           <Button
             onClick={() => setShowReportModal(true)}
             size="icon"
-            className="bg-[#FFA500] hover:bg-[#e59400] text-white rounded-full w-8 h-8 flex items-center justify-center"
-            title="Report Issue"
+            className="bg-[#FFA500] hover:bg-[#e59400] text-white rounded-full w-8 h-8"
           >
             <span className="text-lg font-bold">!</span>
           </Button>
-
         </div>
       </header>
-
-
-      {/* Toggle Sidebar Button - always visible */}
-      <Button
-        variant="default"
-        size="icon"
-        className={`absolute top-20 z-50 ${sidebarOpen ? "left-[330px]" : "left-[10px]"} text-white-700 hover:text-gray-900 bg-black/70 hover:bg-white/90 border-gray-300 `}
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-      >
-        {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-      </Button>
-
-
-
-      {/* Sidebar */}
-      <aside
-        className={cn(
-          "absolute top-16 left-0 bottom-0 z-20 w-80 bg-card border-r border-border transition-transform duration-300 overflow-y-auto",
-          !sidebarOpen && "-translate-x-full",
-        )}
-      >
-        <div className="p-4 space-y-4">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search utilities or buildings..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-
-          {/* Categories */}
-          <div>
-            <h3 className="text-sm font-semibold mb-3">Filter by Category</h3>
-            <div className="space-y-2">
-              {categories.map((category) => {
-                const Icon = category.icon
-                const isSelected = selectedCategories.includes(category.id as UtilityType)
-                return (
-                  <button
-                    key={category.id}
-                    onClick={() => toggleCategory(category.id as UtilityType)}
-                    className={cn(
-                      "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
-                      isSelected ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground",
-                    )}
-                  >
-                    <Icon className={cn("h-5 w-5", isSelected && category.color)} />
-                    <span className="text-sm font-medium">{category.label}</span>
-                    <Badge variant="secondary" className="ml-auto">
-                      {mockUtilities.filter((u) => u.type === category.id).length}
-                    </Badge>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* Utility List */}
-          <div>
-            <h3 className="text-sm font-semibold mb-3">Individual Utilities ({filteredUtilities.length})</h3>
-            <div className="space-y-2">
-              {filteredUtilities.map((utility) => (
-                <button
-                  key={utility.id}                  
-                  onClick={() => handleUtilitySelect(utility)}
-                  className={cn(
-                    "w-full text-left p-3 rounded-lg border transition-colors",
-                    selectedUtility?.id === utility.id
-                      ? "bg-primary/10 border-primary"
-                      : "bg-card border-border hover:bg-muted",
-                  )}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{utility.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {utility.building} • {utility.floor}
-                      </p>
-                    </div>
-                    {utility.status === "reported" && (
-                      <Badge variant="destructive" className="text-xs">
-                        {utility.reports} reports
-                      </Badge>
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-          <footer className="text-center text-xs text-gray-500 py-4 border-t">
-          © {new Date().getFullYear()} UBC Finds. All rights reserved.  
-          This project is student-developed and not officially affiliated with the University of British Columbia.
-        </footer>
-        </div>
-      </aside>
-
-      
-      {/* Map */}
-      <div
-        className={cn(
-          "absolute top-16 bottom-0 right-0 transition-all duration-300",
-          sidebarOpen ? "left-80" : "left-0",
-        )}
-      >
-        <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ""}>
-        <GoogleMap
-        mapContainerStyle={mapContainerStyle}
-        center={userLocation || ubcCenter} // Center on user location if available
-        zoom={userLocation ? 16 : 15} // Zoom in closer if user location is available
-        options={mapOptions}
-        onLoad={onLoad}
-
-      >
-        {/*User's current location marker*/}
-        {userLocation && mapLoaded &&(
-          <Marker
-            position={userLocation}
-            icon={getUserLocationIcon()}
-            title="You are here"
-          />
-        )}
-
-        {/* Utility Markers */}
-        {filteredUtilities.map((utility) => (
-          <Marker
-            key={utility.id}
-            position={utility.position}
-            onClick={() => {
-              handleUtilitySelect(utility)
-              //setSelectedUtility(utility)
-            }}
-            icon={getMarkerIcon(utility)}
-            
-            // Describe the util on hover
-            title={utility.reports ? utility.reports >=2 ? `${utility.name} - ${utility.reports} reports` :`${utility.name} - ${utility.reports} report` : utility.name}
-            />
-        ))}
-
-
-
-      </GoogleMap>
-    </LoadScript>
-
-      {/* Legend */}
-      {showLegend && (
-      <Card className="absolute bottom-4 left-4 w-50">
-        <CardHeader className="pb-0 flex justify-between items-center">
-          <CardTitle className="text-sm">Map Legend</CardTitle>
-            <Button variant="ghost" size="icon" onClick={() => setShowLegend(false)}>
-              <X className="h-4 w-4" />
+  
+      <div className="relative flex-1">
+        {/* DESKTOP SIDEBAR */}
+        {!isMobile && (
+          <>
+            <Button
+              variant="default"
+              size="icon"
+              className={`absolute top-20 z-50 ${sidebarOpen ? "left-[330px]" : "left-[10px]"} bg-black/70 transition-all`}
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
+              {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="flex items-center gap-2 text-xs">
-            <div className="h-3 w-3 rounded-full bg-primary" />
-            <span>Working</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: "#FFA500" }} />
-            <span>Reported Issue</span>
-          </div>
-        </CardContent>
-      </Card>
-    )}
-
-
-
+  
+            <aside className={cn(
+              "absolute top-16 left-0 bottom-0 z-20 w-80 bg-background border-r transition-transform overflow-y-auto",
+              !sidebarOpen && "-translate-x-full"
+            )}>
+              <UtilitySidebarContent {...sidebarProps} />
+            </aside>
+          </>
+        )}
+  
+        {/* MOBILE DRAWER */}
+        {isMobile && (
+          <Drawer>
+            <DrawerTrigger asChild>
+            <Button className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 rounded-full shadow-xl px-10 py-6 text-lg font-bold bg-slate-900 text-slate-50 hover:bg-slate-800 active:scale-95 transition-all">
+  <Menu className="mr-2 h-5 w-5" /> Utility List
+</Button>
+            </DrawerTrigger>
+            <DrawerContent className="h-[85vh]">
+              <DrawerHeader className="text-left px-4">
+                <DrawerTitle>Campus Utilities</DrawerTitle>
+              </DrawerHeader>
+              <div className="overflow-y-auto pb-20">
+                <UtilitySidebarContent {...sidebarProps} />
+              </div>
+            </DrawerContent>
+          </Drawer>
+        )}
+  
+        {/* MAP CONTAINER */}
+        <div className={cn(
+          "absolute inset-0 top-16 transition-all duration-300",
+          (!isMobile && sidebarOpen) ? "left-80" : "left-0"
+        )}>
+          <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ""}>
+            <GoogleMap
+              mapContainerStyle={mapContainerStyle}
+              center={userLocation || ubcCenter}
+              zoom={userLocation ? 16 : 15}
+              options={mapOptions}
+              onLoad={onLoad}
+            >
+              {userLocation && mapLoaded && (
+                <Marker position={userLocation} icon={getUserLocationIcon()} />
+              )}
+              {filteredUtilities.map((utility) => (
+                <Marker
+                  key={utility.id}
+                  position={utility.position}
+                  onClick={() => handleUtilitySelect(utility)}
+                  icon={getMarkerIcon(utility)}
+                  title={utility.name}
+                />
+              ))}
+            </GoogleMap>
+          </LoadScript>
+  
+          {/* Legend */}
+          {showLegend && !isMobile && ( // Removed on mobile
+            <Card className="absolute bottom-4 left-4 w-50">
+              <CardHeader className="pb-0 flex justify-between items-center">
+                <CardTitle className="text-sm">Map Legend</CardTitle>
+                  <Button variant="ghost" size="icon" onClick={() => setShowLegend(false)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="flex items-center gap-2 text-xs">
+                  <div className="h-3 w-3 rounded-full bg-primary" />
+                  <span>Working</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <div className="h-3 w-3 rounded-full" style={{ backgroundColor: "#FFA500" }} />
+                  <span>Reported Issue</span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
-
-      {/* Utility Detail Panel */}
+  
+      {/* Detail Panels & Modals */}
       {selectedUtility && (
         <UtilityDetail
           utility={selectedUtility}
-          onClose={() => {
-            setSelectedUtility(null)
-          }}
-          onReport={() => {
-            setShowReportModal(true)
-          }}
+          onClose={() => setSelectedUtility(null)}
+          onReport={() => setShowReportModal(true)}
           onGetDirections={() => {}}
         />
       )}
-
-      {/* Report Modal */}
       {showReportModal && <ReportModal utility={selectedUtility} onClose={() => setShowReportModal(false)} />}
     </div>
   )
