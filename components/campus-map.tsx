@@ -32,6 +32,7 @@ const ubcCenter = {
 
 // Map options including restrictions to UBC campus area
 const mapOptions = {
+  gestureHandling: 'greedy',
   disableDefaultUI: false,
   zoomControl: true,
   mapTypeControl: false,
@@ -261,10 +262,30 @@ const updateUtilitiesWithReports = async () => {
     console.log("Current map instance:", map)
     setSelectedUtility(utility)
 
-    if (map){
-      map.setZoom(15)
-      const panPos = new google.maps.LatLng(utility.position.lat, utility.position.lng+0.003)
-      map.panTo(panPos)
+    if (map && typeof google !== 'undefined') {
+      const currentMap = map;
+      // Get current zoom, fallback to 15 if for some reason it's undefined
+      const zoom = currentMap.getZoom() ?? 15;
+    
+      if (zoom < 15) {
+        currentMap.setZoom(15);
+      }
+    
+      /**
+       * LOGIC: The higher the zoom, the smaller theLngOffset should be.
+       * At zoom 15, offset is ~0.003
+       * At zoom 18, offset is ~0.0003
+       * Using an exponential calculation makes the movement feel "smooth" 
+       * across different scales.
+       */
+      const lngOffset = 0.003 * Math.pow(2, 15 - zoom);
+    
+      const panPos = {
+        lat: utility.position.lat,
+        lng: utility.position.lng + lngOffset
+      };
+    
+      currentMap.panTo(panPos);
     }
     
   }
@@ -327,8 +348,8 @@ const updateUtilitiesWithReports = async () => {
           <Drawer>
             <DrawerTrigger asChild>
             <Button className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 rounded-full shadow-xl px-10 py-6 text-lg font-bold bg-slate-900 text-slate-50 hover:bg-slate-800 active:scale-95 transition-all">
-  <Menu className="mr-2 h-5 w-5" /> Utility List
-</Button>
+              <Menu className="mr-2 h-5 w-5" /> Utility List
+            </Button>
             </DrawerTrigger>
             <DrawerContent className="h-[85vh]">
               <DrawerHeader className="text-left px-4">
@@ -371,7 +392,7 @@ const updateUtilitiesWithReports = async () => {
   
           {/* Legend */}
           {showLegend && !isMobile && ( // Removed on mobile
-            <Card className="absolute bottom-4 left-4 w-50">
+            <Card className="absolute bottom-9 left-4 w-50">
               <CardHeader className="pb-0 flex justify-between items-center">
                 <CardTitle className="text-sm">Map Legend</CardTitle>
                   <Button variant="ghost" size="icon" onClick={() => setShowLegend(false)}>
