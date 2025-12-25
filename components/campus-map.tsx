@@ -258,36 +258,29 @@ const updateUtilitiesWithReports = async () => {
    *          to the utility's location (with a +0.003 latitude offset).
    */
   const handleUtilitySelect = (utility: Utility) => {
-    console.log("Handling utility selection for:", utility)
-    console.log("Current map instance:", map)
     setSelectedUtility(utility)
-
-    if (map && typeof google !== 'undefined') {
-      const currentMap = map;
-      // Get current zoom, fallback to 15 if for some reason it's undefined
-      const zoom = currentMap.getZoom() ?? 15;
-    
-      if (zoom < 15) {
-        currentMap.setZoom(15);
+  
+    if (map) {
+      const zoom = map.getZoom() ?? 15;
+      const currentZoom = zoom < 15 ? 15 : zoom;
+      map.setZoom(currentZoom);
+  
+      if (isMobile) {
+        // Push the center DOWN so the marker appears in the TOP half of the screen
+        const latOffset = -0.002 * Math.pow(2, 15 - currentZoom);
+        map.panTo({ 
+          lat: utility.position.lat + latOffset, 
+          lng: utility.position.lng 
+        });
+      } else {
+        // Desktop: Keep the side offset for the sidebar
+        const lngOffset = 0.003 * Math.pow(2, 15 - currentZoom);
+        map.panTo({ 
+          lat: utility.position.lat, 
+          lng: utility.position.lng + lngOffset 
+        });
       }
-    
-      /**
-       * LOGIC: The higher the zoom, the smaller theLngOffset should be.
-       * At zoom 15, offset is ~0.003
-       * At zoom 18, offset is ~0.0003
-       * Using an exponential calculation makes the movement feel "smooth" 
-       * across different scales.
-       */
-      const lngOffset = 0.003 * Math.pow(2, 15 - zoom);
-    
-      const panPos = {
-        lat: utility.position.lat,
-        lng: utility.position.lng + lngOffset
-      };
-    
-      currentMap.panTo(panPos);
     }
-    
   }
 
   // Helper to wrap the props we need to pass down
@@ -344,7 +337,7 @@ const updateUtilitiesWithReports = async () => {
         )}
   
         {/* MOBILE DRAWER */}
-        {isMobile && (
+        {isMobile && !selectedUtility && (
           <Drawer>
             <DrawerTrigger asChild>
             <Button className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 rounded-full shadow-xl px-10 py-6 text-lg font-bold bg-slate-900 text-slate-50 hover:bg-slate-800 active:scale-95 transition-all">
@@ -414,15 +407,16 @@ const updateUtilitiesWithReports = async () => {
         </div>
       </div>
   
-      {/* Detail Panels & Modals */}
-      {selectedUtility && (
-        <UtilityDetail
-          utility={selectedUtility}
-          onClose={() => setSelectedUtility(null)}
-          onReport={() => setShowReportModal(true)}
-          onGetDirections={() => {}}
-        />
-      )}
+    {/* Utility Detail Panel */}
+    {selectedUtility && (
+      <UtilityDetail
+        utility={selectedUtility}
+        isMobile={isMobile} // Pass the responsive flag
+        onClose={() => setSelectedUtility(null)}
+        onReport={() => setShowReportModal(true)}
+        // onGetDirections is removed because the component handles it internally now
+      />
+    )}
       {showReportModal && <ReportModal utility={selectedUtility} onClose={() => setShowReportModal(false)} />}
     </div>
   )
