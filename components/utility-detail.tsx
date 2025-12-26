@@ -78,56 +78,72 @@ export function UtilityDetail({ utility, onClose, onReport, isMobile }: UtilityD
     </div>
   )
 
-  // --- MOBILE DRAWER VERSION ---
-  if (isMobile) {
-    return (
-      <Drawer
-        open={!!utility}
-        onOpenChange={(open) => !open && onClose()}
-        modal={false}
-        dismissible={true}
-        >
-        <DrawerContent className="max-h-[45vh] bg-card/95 backdrop-blur-md border-t border-border">
-          <div className="mx-auto w-12 h-1.5 bg-muted rounded-full my-4" />
-          <DrawerHeader className="text-left px-6">
-            <div className="flex justify-between items-start">
-              <div>
-                <DrawerTitle className="text-xl font-bold">{utility.name}</DrawerTitle>
-                <DrawerDescription className="flex items-center gap-1 mt-1 text-sm">
-                  <MapPin className="h-3.5 w-3.5" />
-                  {utility.building} • {utility.floor}
-                </DrawerDescription>
-              </div>
-              <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full bg-muted/50">
-                <X className="h-5 w-5" />
-              </Button>
+// --- MOBILE DRAWER VERSION ---
+if (isMobile) {
+  return (
+    <Drawer
+      open={!!utility}
+      onOpenChange={(open) => !open && onClose()}
+      modal={false}
+      dismissible={true}
+    >
+      <DrawerContent className="max-h-[45vh] bg-card/95 backdrop-blur-md border-t border-border shadow-[0_-10px_40px_rgba(0,0,0,.1)]">
+        
+        {/* Drag Handle: Softened to match the dark theme */}
+        <div className="flex w-full justify-center pt-0 pb-3 touch-non6e">
+          <div className="w-23 h-1.75 bg-zinc-800 rounded-full" />
+        </div>
+        
+        {/* SPACING FIX: Header with reduced top margin */}
+        <DrawerHeader className="text-left px-6 pt-0 pb-1">
+          <div className="flex justify-between items-start">
+            <div className="space-y-0.5">
+              <DrawerTitle className="text-xl font-bold tracking-tight">
+                {utility.name}
+              </DrawerTitle>
+              <DrawerDescription className="flex items-center gap-1.5 text-sm font-medium">
+                <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                {utility.building} • {utility.floor}
+              </DrawerDescription>
             </div>
-          </DrawerHeader>
-          
-          <div className="px-6 space-y-6 pb-10">
-            <div className="flex items-center justify-between">
-              {StatusSection}
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Clock className="h-3.5 w-3.5" />
-                <span>Checked: {utility.lastChecked}</span>
-              </div>
-            </div>
-
-            {utility.status === "reported" && (
-              <div className="p-3 rounded-xl bg-orange-500/5 border border-orange-500/10 flex gap-2">
-                <AlertTriangle className="h-4 w-4 text-orange-500 shrink-0 mt-0.5" />
-                <p className="text-xs text-orange-600 leading-snug">
-                  Recent reports indicate this utility might be out of service.
-                </p>
-              </div>
-            )}
-
-            {ActionButtons}
+            
+            {/* Temporarily(?) taken out for better UI */}
+            {/* Close button with better hit area for mobile thumbs
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={onClose} 
+              className="rounded-full bg-muted/50 -mt-1 h-9 w-9"
+            >
+              <X className="h-5 w-5" />
+            </Button> */}
           </div>
-        </DrawerContent>
-      </Drawer>
-    )
-  }
+        </DrawerHeader>
+        
+        <div className="px-6 space-y-5 pb-10">
+          <div className="flex items-center justify-between">
+            {StatusSection}
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+              <Clock className="h-3.5 w-3.5" />
+              <span>Updated: {utility.lastChecked}</span>
+            </div>
+          </div>
+
+          {utility.status === "reported" && (
+            <div className="p-3 rounded-xl bg-orange-500/5 border border-orange-500/10 flex gap-2.5">
+              <AlertTriangle className="h-4 w-4 text-orange-500 shrink-0 mt-0.5" />
+              <p className="text-xs text-orange-700 leading-snug">
+                Reports suggest this utility might be out of service. Use with caution.
+              </p>
+            </div>
+          )}
+
+          {ActionButtons}
+        </div>
+      </DrawerContent>
+    </Drawer>
+  )
+}
 
   // --- DESKTOP CARD VERSION (Original UI) ---
   return (
