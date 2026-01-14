@@ -4,13 +4,16 @@
 
 # Project **UBC Finds** - Team Polaris
 
+**Live Site:** [ubcfinds.vercel.app](https://ubcfinds.vercel.app)
+
 ### Mission Statement 
 *Simplifying navigation for utilities on campus to enhance accessibility and reduce frustration.*
 
 ### Team Roles
 **Project Manager:** Adam \
 **Designer:** Ahnaf \
-**Developers:** Anant, Viren, Max
+**Lead Developer:** Anant \
+**Developers:** Viren, Max
 
 ### Problem Statement
 
@@ -27,48 +30,19 @@ The failure to quickly locate essential utilities, such as water refill stations
 - User feedback system for reporting broken utilities
 - Mobile-responsive design with collapsible sidebar
 
-## Setup
+## Project Documentation & Deliverables
 
-### Google Maps API Key
+### Milestone 1: Inception & Design
+*   [Design Specification](DOCUMENTATION/DESIGN_SPECIFICATION.md) - Initial solution design and team structure.
 
-This app requires a Google Maps API key to display the interactive map.
+### Milestone 2: Requirements & Architecture
+*   [Requirements](DOCUMENTATION/REQUIREMENTS.md) - Functional and non-functional requirements.
+*   [Architecture](DOCUMENTATION/ARCHITECTURE.md) - System architecture and component design.
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select an existing one
-3. Enable the **Maps JavaScript API**
-4. Create credentials (API Key)
-5. Add the API key to your environment variables:
+### Milestone 3: Planning
+*   [Project Plan](DOCUMENTATION/PLAN.md) - Development roadmap and timeline.
 
-```bash
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_api_key_here
-```
-
-### Installation
-
-```bash
-npm install
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) to view the app.
-
-## Environment Variables
-
-Add these to your Vercel project or `.env` file:
-
-- `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` - Your Google Maps API key (required)
-
-## Tech Stack
-
-- Next.js 16.0.0
-- React 18.3.1
-- TypeScript
-- Tailwind CSS 4.1.9
-- shadcn/ui components
-- Google Maps JavaScript API
-
-## Libraries & Dependencies
-
-- @react-google-maps/api — React wrapper for the Google Maps JavaScript API
-- shadcn/ui — UI component primitives used across the app
-- @supabase/supabase-js — Supabase client library
+### Milestone 4: Release
+*   [Setup & Installation](DOCUMENTATION/SETUP.md) - Comprehensive guide for developers and users.
+*   [Bugs & Features](DOCUMENTATION/BUGSANDFEATURES.md) - Known issues and features removed from MVP.
+*   [Contributions](DOCUMENTATION/CONTRIBUTIONS.md) - Individual team member contributions.

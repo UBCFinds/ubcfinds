@@ -1,11 +1,19 @@
 "use client"
 
-import { MapPin, Clock, AlertTriangle, X } from "lucide-react"
+import React from "react"
+import { MapPin, Clock, AlertTriangle, X, Navigation } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+} from "@/components/ui/drawer"
 
-// Utility detail component
 interface Utility {
   id: string
   name: string
@@ -18,108 +26,155 @@ interface Utility {
   lastChecked: string
 }
 
-// Utility detail props interface 
 interface UtilityDetailProps {
   utility: Utility
   onClose: () => void
   onReport: () => void
-  onGetDirections: () => void
+  isMobile: boolean
 }
 
-// Utility detail component
-// Displays detailed information about a utility
-// Includes status, last checked time, and quick actions
-// Allows users to report issues or get directions
-export function UtilityDetail({ utility, onClose, onReport }: UtilityDetailProps) {
-  function onGetDirections(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
-    console.log(`Getting directions to ${utility.name} located at ${utility.building}, ${utility.floor}`);
+export function UtilityDetail({ utility, onClose, onReport, isMobile }: UtilityDetailProps) {
   
-    // Use the exact latitude and longitude of the utility
+  const onGetDirections = () => {
     const destination = `${utility.position.lat},${utility.position.lng}`;
-  
-    // Construct the Google Maps directions URL
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}&travelmode=walking`;
-  
-    // Open the directions in a new tab
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=walking`;
     window.open(url, "_blank");
   }
 
+  // Common UI elements shared between Desktop Card and Mobile Drawer
+  const StatusSection = (
+    <div className="flex items-center gap-2">
+      {utility.status === "working" && (
+        <Badge variant="secondary" className="bg-green-500/10 text-green-600 border-green-500/20">
+          Working
+        </Badge>
+      )}
+      {utility.status === "reported" && (
+        <Badge className="bg-[#FFA500]/10 text-[#FFA500] border border-[#FFA500]/40">
+          {utility.reports} Issue{utility.reports > 1 ? "s" : ""} Reported
+        </Badge>
+      )}
+      {utility.status === "maintenance" && (
+        <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20">
+          Maintenance
+        </Badge>
+      )}
+    </div>
+  )
 
+  const ActionButtons = (
+    <div className="flex gap-2 w-full pt-2">
+      <Button 
+        variant={isMobile ? "default" : "outline"} 
+        className="flex-1 h-12 lg:h-9 font-bold" 
+        onClick={onGetDirections}
+      >
+        <Navigation className="mr-2 h-4 w-4" />
+        Navigate
+      </Button>
+      <Button variant="outline" className="flex-1 h-12 lg:h-9" onClick={onReport}>
+        Report Issue
+      </Button>
+    </div>
+  )
+
+// --- MOBILE DRAWER VERSION ---
+if (isMobile) {
   return (
-    <Card className="absolute top-20 right-4 w-80 shadow-xl z-30 animate-in slide-in-from-right">
+    <Drawer
+      open={!!utility}
+      onOpenChange={(open) => !open && onClose()}
+      modal={false}
+      dismissible={true}
+    >
+      <DrawerContent className="max-h-[45vh] bg-card/95 backdrop-blur-md border-t border-border shadow-[0_-10px_40px_rgba(0,0,0,.1)]">
+        
+        {/* Drag Handle: Softened to match the dark theme */}
+        <div className="flex w-full justify-center pt-0 pb-3 touch-non6e">
+          <div className="w-23 h-1.75 bg-zinc-800 rounded-full" />
+        </div>
+        
+        {/* SPACING FIX: Header with reduced top margin */}
+        <DrawerHeader className="text-left px-6 pt-0 pb-1">
+          <div className="flex justify-between items-start">
+            <div className="space-y-0.5">
+              <DrawerTitle className="text-xl font-bold tracking-tight">
+                {utility.name}
+              </DrawerTitle>
+              <DrawerDescription className="flex items-center gap-1.5 text-sm font-medium">
+                <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                {utility.building} • {utility.floor}
+              </DrawerDescription>
+            </div>
+            
+            {/* Temporarily(?) taken out for better UI */}
+            {/* Close button with better hit area for mobile thumbs
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={onClose} 
+              className="rounded-full bg-muted/50 -mt-1 h-9 w-9"
+            >
+              <X className="h-5 w-5" />
+            </Button> */}
+          </div>
+        </DrawerHeader>
+        
+        <div className="px-6 space-y-5 pb-10">
+          <div className="flex items-center justify-between">
+            {StatusSection}
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+              <Clock className="h-3.5 w-3.5" />
+              <span>Updated: {utility.lastChecked}</span>
+            </div>
+          </div>
+
+          {utility.status === "reported" && (
+            <div className="p-3 rounded-xl bg-orange-500/5 border border-orange-500/10 flex gap-2.5">
+              <AlertTriangle className="h-4 w-4 text-orange-500 shrink-0 mt-0.5" />
+              <p className="text-xs text-orange-700 leading-snug">
+                Reports suggest this utility might be out of service. Use with caution.
+              </p>
+            </div>
+          )}
+
+          {ActionButtons}
+        </div>
+      </DrawerContent>
+    </Drawer>
+  )
+}
+
+  // --- DESKTOP CARD VERSION (Original UI) ---
+  return (
+    <Card className="absolute top-20 right-4 w-80 shadow-xl z-30 animate-in slide-in-from-right duration-300">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <CardTitle className="text-lg text-balance">{utility.name}</CardTitle>
-            <CardDescription className="flex items-center gap-1 mt-1">
+            <CardTitle className="text-lg leading-tight">{utility.name}</CardTitle>
+            <CardDescription className="flex items-center gap-1 mt-1 text-xs">
               <MapPin className="h-3 w-3" />
               {utility.building} • {utility.floor}
             </CardDescription>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
+          <Button variant="ghost" size="icon" onClick={onClose}><X className="h-4 w-4" /></Button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center gap-2">
-          {utility.status === "working" && (
-            <Badge variant="secondary" className="bg-green-500/10 text-green-500">
-              Working
-            </Badge>
-          )}
-          {utility.status === "reported" && (
-            <Badge
-              className="bg-[#FFA500]/20 text-[#FFA500] border border-[#FFA500]/40"
-            >
-              {utility.reports} Issue{utility.reports > 1 ? "s" : ""} Reported
-            </Badge>
-          )}
-
-          {utility.status === "maintenance" && (
-            <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-500">
-              Under Maintenance
-            </Badge>
-          )}
+      <CardContent className="space-y-4 pb-6">
+        {StatusSection}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Clock className="h-4 w-4" />
+          <span>Last checked: {utility.lastChecked}</span>
         </div>
-
-        <div className="space-y-2 text-sm">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Clock className="h-4 w-4" />
-            <span>Last checked: {utility.lastChecked}</span>
-          </div>
-        </div>
-
         {utility.status === "reported" && (
-          <div className={`p-3 rounded-lg border ${utility.status === "reported" ? "bg-[#FFA500]/10 border-[#FFA500]/20" : "bg-destructive/10 border-destructive/20"}`}>
-            <div className="flex items-start gap-2">
-              <AlertTriangle className={`h-4 w-4 mt-0.5 ${utility.status === "reported" ? "text-[#FFA500]" : "text-destructive"}`} />
-              <div className={`text-xs ${utility.status === "reported" ? "text-[#FFA500]" : "text-destructive"}`}>
-                <p className="font-medium">Recent reports indicate this utility may not be working properly.</p>
-              </div>
-            </div>
+          <div className="p-3 rounded-lg border bg-[#FFA500]/10 border-[#FFA500]/20 flex gap-2">
+            <AlertTriangle className="h-4 w-4 text-[#FFA500] shrink-0" />
+            <p className="text-xs text-[#FFA500] font-medium">Recent issues reported.</p>
           </div>
-
         )}
-
         <div className="space-y-2">
           <h4 className="text-sm font-semibold">Quick Actions</h4>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="flex-1 bg-transparent" onClick={onGetDirections}>
-              Get Directions
-            </Button>
-            <Button variant="outline" size="sm" onClick={onReport}>
-              Report Issue
-            </Button>
-          </div>
-        </div>
-
-        <div className="pt-2 border-t border-border">
-          <h4 className="text-sm font-semibold mb-2">Additional Info</h4>
-          <div className="text-xs text-muted-foreground space-y-1">
-            <p>• Wheelchair accessible</p>
-            <p>• Well-lit area</p>
-          </div>
+          {ActionButtons}
         </div>
       </CardContent>
     </Card>

@@ -10,19 +10,9 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from "@/lib/supabase";
 import { id } from "date-fns/locale"
 import { set } from "date-fns"
-//import { supabase } from "@/supabaseClient"; // Import the Supabase client
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error("Supabase URL or Key is missing in environment variables.");
-}
-
-export const supabase = createClient(supabaseUrl, supabaseKey);
 
 interface ReportModalProps {
   utility: { name: string; building: string; id: string } | null
@@ -36,7 +26,18 @@ export function ReportModal({ utility, onClose }: ReportModalProps) {
   const [showReportModal, setShowReportModal] = useState(true); // Added state to control modal visibility
   const [submitting, setSubmitting] = useState(false);
 
-  /* Add report submission to subabase database*/
+  /**
+   * Handles the submission of a utility report.
+   * 
+   * @param e - The form submission event.
+   * @requires e is a valid form event. utility prop is defined (or handles null).
+   * @modifies submitting, submitted, description, issueType states. Supabase database.
+   * @effects Prevents default form submission. 
+   *          Inserts a new record into the reports table with the current timestamp, 
+   *          utility ID, issue type, and description. 
+   *          On success, resets form fields and closes the modal. 
+   *          On failure, logs the error.
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     //console.log("Submitting report:", { issueType, description,  utility.name});
     setSubmitting(true);
