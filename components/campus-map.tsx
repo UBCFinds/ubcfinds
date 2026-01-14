@@ -94,7 +94,7 @@ export function CampusMap() {
   const [showLegend, setShowLegend] = useState(true)
   const [mapLoaded, setMapLoaded] = useState(false)
   const isMobile = useIsMobile();
-  
+
   /**
    * Generates the icon for the user's current location.
    * 
@@ -102,6 +102,7 @@ export function CampusMap() {
    * @effects Returns a google.maps.Icon object configured with the custom 
    *          "/location_icon.png", scaled to 32x32px.
    */
+
   const getUserLocationIcon = () => {
     if (typeof window === "undefined" || !window.google || !window.google.maps) {
       return undefined
@@ -172,7 +173,7 @@ const updateUtilitiesWithReports = async () => {
     setUtilities(mockUtilities.map(u => ({
       ...u,
       reports: counts?.[u.id] || 0,
-      status: counts?.[u.id] ? "reported" : "working" // update marker color
+      status: counts?.[u.id] >= 3 ? "reported" : "working" // update marker color
 
     })));
   } catch (err) {
@@ -465,7 +466,7 @@ const updateUtilitiesWithReports = async () => {
         }} 
       />
     )}
-    
+
     </div>
   )
 }
