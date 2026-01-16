@@ -48,21 +48,101 @@ export const getCategoryColor = (type: UtilityType): string => {
 }
 
 /**
- * Filters utilities based on selected categories and search query.
+ * Filters and ranks utilities based on search relevance and category selection.
+ * Implements a weighted scoring algorithm to prioritize exact and prefix matches,
+ * simulating a professional search engine experience.
  * 
  * @param utilities - The list of utilities to filter.
  * @param selectedCategories - The list of currently selected category IDs.
  * @param searchQuery - The search string to filter by name or building.
- * @effects Returns a filtered array of utilities that match both the category and search criteria.
+ * @effects Returns a sorted array of utilities ranked by relevance score.
  */
 export const filterUtilities = (utilities: Utility[], selectedCategories: UtilityType[], searchQuery: string): Utility[] => {
-  return utilities.filter(
-    (u) =>
-      selectedCategories.includes(u.type) &&
-      (searchQuery === "" ||
-        u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        u.building.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const normalizedQuery = searchQuery.toLowerCase().trim();
+  const hasSelection = selectedCategories.length > 0;
+  const hasQuery = normalizedQuery !== "";
+
+  // Optimization: If no search query, simply filter by category (no ranking needed)
+  if (!hasQuery) {
+     // If no categories selected, return empty (standard behavior to not clutter map)
+     if (!hasSelection) return [];
+     return utilities.filter(u => selectedCategories.includes(u.type));
+  }
+
+  // Relevance Scoring Helper
+  // Score 100: Exact Match
+  // Score 80: Starts With Query
+  // Score 60: Word/Token Starts With Query (e.g. "Tim" in "The Tim Hortons")
+  // Score 40: General Substring Match
+  // Score 20: Sub-description/Details Match (e.g. searching "micro" finds "Microwave")
+  // Score 0: No Match
+  const getRelevanceScore = (text: string | undefined | null): number => {
+    if (!text) return 0; // Handle undefined/null inputs gracefully
+    const t = text.toLowerCase();
+    
+    // Check for multi-term query (e.g. "micro macleod")
+    const queryTerms = normalizedQuery.split(/\s+/).filter(q => q.length > 0);
+    if (queryTerms.length > 1) {
+       // All terms must match somewhere in the text to count as a match
+       const allTermsMatch = queryTerms.every(term => t.includes(term));
+       if (allTermsMatch) return 50; // High score but lower than exact single-phrase match
+    }
+
+    if (t === normalizedQuery) return 100;
+    if (t.startsWith(normalizedQuery)) return 80;
+    if (t.split(" ").some(word => word.startsWith(normalizedQuery))) return 60;
+    if (t.includes(normalizedQuery)) return 40;
+    return 0;
+  };
+
+  return utilities
+    .map(u => {
+      // 1. Scope Constraint: Must match category selection (if specific categories are active)
+      // If no categories selected (Global Search), this check is bypassed (true).
+      const isInScope = hasSelection ? selectedCategories.includes(u.type) : true;
+      
+      if (!isInScope) return { utility: u, score: -1 };
+
+      // 2. Relevance Calculation
+      // We calculate scores for all searchable fields: Name, Building, Floor (Description), Type
+      let score = 0;
+
+      // Check multi-field match (e.g. "micro macleod")
+      // Only runs if query has multiple words
+      const queryTerms = normalizedQuery.split(/\s+/).filter(q => q.length > 0);
+      if (queryTerms.length > 1) {
+         // Create a composite string of all searchable text for this item
+         const fullText = `${u.name} ${u.building} ${u.floor} ${u.type}`.toLowerCase();
+         // Check if EVERY search term appears SOMEWHERE in that composite string
+         if (queryTerms.every(term => fullText.includes(term))) {
+             score = 70; // High relevance: The user's specific multi-word query matched this item
+         }
+      }
+
+      // If no multi-field match found yet, fall back to individual field scoring
+      if (score === 0) {
+        const nameScore = getRelevanceScore(u.name);
+        const buildingScore = getRelevanceScore(u.building);
+        const floorScore = getRelevanceScore(u.floor); 
+        const typeScore = getRelevanceScore(u.type);
+
+        // Take the maximum score found across any field
+        // Matches in 'Name' are prioritized (no penalty)
+        // Matches in 'Building' get slight penalty (-1)
+        // Matches in 'Floor' (description) get larger penalty (-10) to prioritize main titles
+        score = Math.max(
+          nameScore, 
+          buildingScore > 0 ? buildingScore - 1 : 0,
+          floorScore > 0 ? floorScore - 10 : 0,
+          typeScore > 0 ? typeScore - 5 : 0 // Matching type (e.g. "microwave")
+        );
+      }
+
+      return { utility: u, score: score };
+    })
+    .filter(item => item.score > 0)     // Filter out non-matches
+    .sort((a, b) => b.score - a.score)  // Sort by score descending (Best match first)
+    .map(item => item.utility);         // Extract/Flatten back to Utility[]
 }
 
 /**
