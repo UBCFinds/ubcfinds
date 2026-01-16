@@ -2,7 +2,7 @@
 
 // Import all libraries and components
 import { useState, useEffect } from "react"
-import { Search, Droplet, Bike, MapPin, AlertCircle, Coffee, Zap, Menu, X, ZoomIn, ZoomInIcon, MicrowaveIcon, ParkingCircle, BusFrontIcon, DollarSign } from "lucide-react"
+import { Search, Droplet, Bike, MapPin, AlertCircle, Coffee, Zap, Menu, X, ZoomIn, ZoomInIcon, MicrowaveIcon, ParkingCircle, BusFrontIcon, DollarSign, HelpCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { UtilityDetail } from "@/components/utility-detail"
 import { ReportModal } from "@/components/report-modal"
+import { TutorialManager } from "@/components/tutorial-manager"
 import { Data, GoogleMap, LoadScript, Marker } from "@react-google-maps/api"
 import { mockUtilities, Utility, UtilityType } from "@/components/utility-list"
 import { supabase } from "@/lib/supabase";
@@ -93,6 +94,7 @@ export function CampusMap() {
   const [utilities, setUtilities] = useState<Utility[]>(mockUtilities)
   const [showLegend, setShowLegend] = useState(true)
   const [mapLoaded, setMapLoaded] = useState(false)
+  const [runTour, setRunTour] = useState(false)
   const isMobile = useIsMobile();
 
   /**
@@ -340,13 +342,24 @@ const updateUtilitiesWithReports = async () => {
             <h1 className="text-xl font-bold">UBC Finds</h1>
             <p className="text-xs text-muted-foreground">So you don't get left behind.</p>
           </div>
-          <Button
-            onClick={() => setShowReportModal(true)}
-            size="icon"
-            className="bg-[#FFA500] hover:bg-[#e59400] text-white rounded-full w-8 h-8"
-          >
-            <span className="text-lg font-bold">!</span>
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full w-8 h-8"
+              onClick={() => setRunTour(true)}
+            >
+              <HelpCircle className="h-5 w-5" />
+            </Button>
+            <Button
+              id="tour-report-btn"
+              onClick={() => setShowReportModal(true)}
+              size="icon"
+              className="bg-[#FFA500] hover:bg-[#e59400] text-white rounded-full w-8 h-8"
+            >
+              <span className="text-lg font-bold">!</span>
+            </Button>
+          </div>
         </div>
       </header>
   
@@ -355,6 +368,7 @@ const updateUtilitiesWithReports = async () => {
         {!isMobile && (
           <>
             <Button
+              id="tour-sidebar-toggle"
               variant="default"
               size="icon"
               className={`absolute top-20 z-50 ${sidebarOpen ? "left-[330px]" : "left-[10px]"} bg-black/70 transition-all`}
@@ -376,7 +390,7 @@ const updateUtilitiesWithReports = async () => {
         {isMobile && !selectedUtility && (
           <Drawer>
             <DrawerTrigger asChild>
-            <Button className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 rounded-full shadow-xl px-10 py-6 text-lg font-bold bg-slate-900 text-slate-50 hover:bg-slate-800 active:scale-95 transition-all">
+            <Button id="tour-mobile-drawer-trigger" className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 rounded-full shadow-xl px-10 py-6 text-lg font-bold bg-slate-900 text-slate-50 hover:bg-slate-800 active:scale-95 transition-all">
               <Menu className="mr-2 h-5 w-5" /> Utility List
             </Button>
             </DrawerTrigger>
@@ -455,7 +469,8 @@ const updateUtilitiesWithReports = async () => {
         // onGetDirections is removed because the component handles it internally now
       />
     )}
-
+  <TutorialManager run={runTour} onFinish={() => setRunTour(false)} />
+    
     {/* Report Modal */}
     {showReportModal && (
       <ReportModal 
