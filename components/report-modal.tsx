@@ -77,7 +77,7 @@ export function ReportModal({ utility, onClose }: ReportModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[10001] bg-background/80 backdrop-blur-sm flex items-center justify-center p-4">
       <Card className="w-full max-w-md animate-in zoom-in-95">
         <CardHeader>
           <div className="flex items-start justify-between">
