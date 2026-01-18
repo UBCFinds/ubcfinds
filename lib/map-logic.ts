@@ -76,7 +76,6 @@ export const filterUtilities = (utilities: Utility[], selectedCategories: Utilit
   // Score 80: Starts With Query
   // Score 60: Word/Token Starts With Query (e.g. "Tim" in "The Tim Hortons")
   // Score 40: General Substring Match
-  // Score 20: Sub-description/Details Match (e.g. searching "micro" finds "Microwave")
   // Score 0: No Match
   const getRelevanceScore = (t: string): number => {
     if (!t) return 0;
