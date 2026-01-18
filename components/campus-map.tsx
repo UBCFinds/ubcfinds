@@ -348,6 +348,7 @@ const updateUtilitiesWithReports = async () => {
               size="icon"
               className="rounded-full w-8 h-8"
               onClick={() => setRunTour(true)}
+              aria-label="Start tutorial"
             >
               <HelpCircle className="h-5 w-5" />
             </Button>
