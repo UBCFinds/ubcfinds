@@ -19,7 +19,7 @@ const mockUtilities: Utility[] = [
     name: "Microwave",
     type: "microwave",
     building: "Life",
-    floor: "Lower Level Basement",
+    floor: "2",
     position: { lat: 0, lng: 0 },
     status: "working",
     reports: 0,
@@ -104,12 +104,13 @@ describe("Map Logic", () => {
     })
 
     it("Deep Property Search: Should search in floor/description", () => {
-        // Search for "Basement" which is only in the floor field of item 2
-        const results = filterUtilities(mockUtilities, [], "Basement")
-        
+        // "2" matches floor "2" of Microwave
+        const results = filterUtilities(mockUtilities, [], "2")
+        // NOTE: The search logic does not use ID; this test verifies that "2" matches via the floor field.
+
         expect(results).toHaveLength(1)
         expect(results[0].id).toBe("2")
-        expect(results[0].floor).toContain("Basement")
+        expect(results[0].floor).toBe("2")
     })
     
     it("Deep Property Search: Should search in Type", () => {
@@ -130,7 +131,7 @@ describe("Map Logic", () => {
       ] as Utility[]
 
       // Search "Chemistry"
-      // Item 3: "Broken Fountain" (Building match = Chemistry) -> Score ~79 (80-1)
+      // Item 3: "Broken Fountain" (Building match = "Chemistry Block B", starts with "Chemistry") -> Score ~79 (80-1)
       // Item 4: "Chemistry Lab" (Name match = Chemistry) -> Score 80 (Starts with)
       
       const results = filterUtilities(rankedMock, [], "Chemistry")
