@@ -69,6 +69,8 @@ export const filterUtilities = (utilities: Utility[], selectedCategories: Utilit
      return utilities.filter(u => selectedCategories.includes(u.type));
   }
 
+  const queryTerms = normalizedQuery.split(/\s+/).filter(q => q.length > 0);
+
   // Relevance Scoring Helper
   // Score 100: Exact Match
   // Score 80: Starts With Query
@@ -81,7 +83,6 @@ export const filterUtilities = (utilities: Utility[], selectedCategories: Utilit
     const t = text.toLowerCase();
     
     // Check for multi-term query (e.g. "micro macleod")
-    const queryTerms = normalizedQuery.split(/\s+/).filter(q => q.length > 0);
     if (queryTerms.length > 1) {
        // All terms must match somewhere in the text to count as a match
        const allTermsMatch = queryTerms.every(term => t.includes(term));
@@ -109,7 +110,6 @@ export const filterUtilities = (utilities: Utility[], selectedCategories: Utilit
 
       // Check multi-field match (e.g. "micro macleod")
       // Only runs if query has multiple words
-      const queryTerms = normalizedQuery.split(/\s+/).filter(q => q.length > 0);
       if (queryTerms.length > 1) {
          // Create a composite string of all searchable text for this item
          const fullText = `${u.name} ${u.building} ${u.floor} ${u.type}`.toLowerCase();
