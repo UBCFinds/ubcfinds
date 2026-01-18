@@ -116,24 +116,25 @@ export const filterUtilities = (utilities: Utility[], selectedCategories: Utilit
          }
       }
 
-      // If no multi-field match found yet, fall back to individual field scoring
-      if (score === 0) {
-        const nameScore = getRelevanceScore(nameL);
-        const buildingScore = getRelevanceScore(buildingL);
-        const floorScore = getRelevanceScore(floorL); 
-        const typeScore = getRelevanceScore(typeL);
+      // Calculate individual field scores regardless of multi-term match
+      const nameScore = getRelevanceScore(nameL);
+      const buildingScore = getRelevanceScore(buildingL);
+      const floorScore = getRelevanceScore(floorL); 
+      const typeScore = getRelevanceScore(typeL);
 
-        // Take the maximum score found across any field
-        // Matches in 'Name' are prioritized (no penalty)
-        // Matches in 'Building' get slight penalty (-1)
-        // Matches in 'Floor' (description) get larger penalty (-10) to prioritize main titles
-        score = Math.max(
-          nameScore, 
-          buildingScore > 0 ? buildingScore - 1 : 0,
-          floorScore > 0 ? floorScore - 10 : 0,
-          typeScore > 0 ? typeScore - 5 : 0 // Matching type (e.g. "microwave")
-        );
-      }
+      // Take the maximum score found across any field
+      // Matches in 'Name' are prioritized (no penalty)
+      // Matches in 'Building' get slight penalty (-1)
+      // Matches in 'Floor' (description) get larger penalty (-10) to prioritize main titles
+      const individualScore = Math.max(
+        nameScore, 
+        buildingScore > 0 ? buildingScore - 1 : 0,
+        floorScore > 0 ? floorScore - 10 : 0,
+        typeScore > 0 ? typeScore - 5 : 0 // Matching type (e.g. "microwave")
+      );
+      
+      // Use the highest score from either multi-term or single-field match
+      score = Math.max(score, individualScore);
 
       return { utility: u, score: score };
     })
