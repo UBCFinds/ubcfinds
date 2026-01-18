@@ -113,7 +113,7 @@ export const filterUtilities = (utilities: Utility[], selectedCategories: Utilit
          const fullText = `${nameL} ${buildingL} ${floorL} ${typeL}`;
          // Check if EVERY search term appears SOMEWHERE in that composite string
          if (queryTerms.every(term => fullText.includes(term))) {
-             score = 70; // High relevance: The user's specific multi-word query matched this item
+             score = 80; // High relevance: treat multi-word matches at the same level as "starts with"
          }
       }
 
