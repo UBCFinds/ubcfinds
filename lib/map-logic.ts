@@ -78,9 +78,8 @@ export const filterUtilities = (utilities: Utility[], selectedCategories: Utilit
   // Score 40: General Substring Match
   // Score 20: Sub-description/Details Match (e.g. searching "micro" finds "Microwave")
   // Score 0: No Match
-  const getRelevanceScore = (text: string | undefined | null): number => {
-    if (!text) return 0; // Handle undefined/null inputs gracefully
-    const t = text.toLowerCase();
+  const getRelevanceScore = (t: string): number => {
+    if (!t) return 0;
     
     // Check for multi-term query (e.g. "micro macleod")
     if (queryTerms.length > 1) {
@@ -104,6 +103,12 @@ export const filterUtilities = (utilities: Utility[], selectedCategories: Utilit
       
       if (!isInScope) return { utility: u, score: -1 };
 
+      // Pre-calculate lowercased fields to allow reuse in fullText and scoring matching
+      const nameL = u.name.toLowerCase();
+      const buildingL = u.building.toLowerCase();
+      const floorL = (u.floor || "").toLowerCase();
+      const typeL = u.type.toLowerCase();
+
       // 2. Relevance Calculation
       // We calculate scores for all searchable fields: Name, Building, Floor (Description), Type
       let score = 0;
@@ -112,7 +117,7 @@ export const filterUtilities = (utilities: Utility[], selectedCategories: Utilit
       // Only runs if query has multiple words
       if (queryTerms.length > 1) {
          // Create a composite string of all searchable text for this item
-         const fullText = `${u.name} ${u.building} ${u.floor} ${u.type}`.toLowerCase();
+         const fullText = `${nameL} ${buildingL} ${floorL} ${typeL}`;
          // Check if EVERY search term appears SOMEWHERE in that composite string
          if (queryTerms.every(term => fullText.includes(term))) {
              score = 70; // High relevance: The user's specific multi-word query matched this item
@@ -121,10 +126,10 @@ export const filterUtilities = (utilities: Utility[], selectedCategories: Utilit
 
       // If no multi-field match found yet, fall back to individual field scoring
       if (score === 0) {
-        const nameScore = getRelevanceScore(u.name);
-        const buildingScore = getRelevanceScore(u.building);
-        const floorScore = getRelevanceScore(u.floor); 
-        const typeScore = getRelevanceScore(u.type);
+        const nameScore = getRelevanceScore(nameL);
+        const buildingScore = getRelevanceScore(buildingL);
+        const floorScore = getRelevanceScore(floorL); 
+        const typeScore = getRelevanceScore(typeL);
 
         // Take the maximum score found across any field
         // Matches in 'Name' are prioritized (no penalty)
