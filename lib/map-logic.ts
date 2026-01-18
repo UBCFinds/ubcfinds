@@ -105,46 +105,37 @@ export const filterUtilities = (utilities: Utility[], selectedCategories: Utilit
       // We calculate scores for all searchable fields: Name, Building, Floor (Description), Type
       let score = 0;
 
-      // Check multi-field match (e.g. "micro macleod")
-      // Only runs if query has multiple words
+      // Calculate individual field scores for the full query string.
+      // This ensures exact matches like "Chemistry Lab" in name field get score 100,
+      // even for multi-term queries.
+      const nameScore = getRelevanceScore(nameL);
+      const buildingScore = getRelevanceScore(buildingL);
+      const floorScore = getRelevanceScore(floorL); 
+      const typeScore = getRelevanceScore(typeL);
+
+      // Apply field weights: Name (1.0), Building (0.9), Type (0.8), Floor (0.7)
+      // This ensures that for the same match quality, fields are prioritized correctly
+      const individualScore = Math.max(
+        nameScore, 
+        Math.floor(buildingScore * 0.9),
+        Math.floor(typeScore * 0.8),
+        Math.floor(floorScore * 0.7) 
+      );
+
+      score = individualScore;
+
+      // For multi-term queries, also check composite cross-field matches
+      // (e.g. "broken chemistry" where "broken" is in name and "chemistry" is in building)
       if (queryTerms.length > 1) {
          // Create a composite string of all searchable text for this item
          const fullText = `${nameL} ${buildingL} ${floorL} ${typeL}`;
          // Check if EVERY search term appears SOMEWHERE in that composite string
          if (queryTerms.every(term => fullText.includes(term))) {
-             score = 80; // High relevance: treat multi-word matches at the same level as "starts with"
+             // Use composite score only if it's better than individual field score
+             // This ensures "Chemistry Lab" exact match (100) beats composite match (80)
+             score = Math.max(score, 80);
          }
       }
-
-      // Calculate individual field scores.
-      // NOTE: For multi-term queries (e.g. "broken chemistry"), we intentionally
-      //       DO NOT use per-field phrase scoring via getRelevanceScore, because
-      //       it operates on the full normalized query string. Instead, multi-term
-      //       queries are scored using the composite multi-field logic above.
-      //       Single-term queries continue to use detailed per-field scoring.
-      let individualScore = 0;
-      if (queryTerms.length === 1) {
-        const nameScore = getRelevanceScore(nameL);
-        const buildingScore = getRelevanceScore(buildingL);
-        const floorScore = getRelevanceScore(floorL); 
-        const typeScore = getRelevanceScore(typeL);
-
-        // Take the maximum score found across any field
-        // Matches in 'Name' are prioritized (Weight: 1.0)
-        // Matches in 'Building' get slight penalty (Weight: 0.9)
-        // Matches in 'Type' get medium penalty (Weight: 0.8)
-        // Matches in 'Floor' (description) get larger penalty (Weight: 0.7) to prioritize main titles
-        // This ensures that for the same match quality (e.g. "exact match"), the fields are prioritized correctly
-        individualScore = Math.max(
-          nameScore, 
-          Math.floor(buildingScore * 0.9),
-          Math.floor(typeScore * 0.8),
-          Math.floor(floorScore * 0.7) 
-        );
-      }
-      
-      // Use the highest score from either multi-term or single-field match
-      score = Math.max(score, individualScore);
 
       return { utility: u, score: score };
     })
