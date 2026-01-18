@@ -81,6 +81,58 @@ describe("Map Logic", () => {
       const result = filterUtilities(mockUtilities, selected, "Fountain")
       expect(result).toHaveLength(2) // Water Fountain and Broken Fountain
     })
+    it("Global Search: Should search all categories when no category is selected", () => {
+      // Case 1: No query, no selection -> Empty (Map cleanup)
+      expect(filterUtilities(mockUtilities, [], "")).toHaveLength(0)
+
+      // Case 2: Query "Nest", no selection -> Should find items in Nest across categories
+      const results = filterUtilities(mockUtilities, [], "Nest")
+      expect(results).toHaveLength(1)
+      expect(results[0].building).toBe("Nest")
+    })
+
+    it("Multi-Term Query: Should match 'broken chemistry' across fields", () => {
+      const results = filterUtilities(mockUtilities, [], "broken chemistry")
+      expect(results).toHaveLength(1)
+      expect(results[0].id).toBe("3") // Broken Fountain in Chemistry
+    })
+
+    it("Deep Property Search: Should search in floor/description", () => {
+        // "2" matches floor "2" of Microwave
+        const results = filterUtilities(mockUtilities, [], "2")
+        // NOTE: "2" might match ID, but we check logic. logic searches floor.
+        const microwave = results.find(r => r.id === "2")
+        expect(microwave).toBeDefined()
+    })
+    
+    it("Deep Property Search: Should search in Type", () => {
+        // Searching "microwave" should find the Microwave item
+        const results = filterUtilities(mockUtilities, [], "microwave")
+        expect(results).toHaveLength(1)
+        expect(results[0].name).toBe("Microwave")
+    })
+
+    it("Relevance Ranking: Name match should prioritize over lower matches", () => {
+      // Add a conflicting item
+      const rankedMock = [
+          ...mockUtilities,
+          {
+            id: "4", name: "Chemistry Lab", type: "water", building: "Other", floor: "", 
+            position: {lat:0,lng:0}, status: "working", reports: 0, lastChecked: ""
+          }
+      ] as Utility[]
+
+      // Search "Chemistry"
+      // Item 3: "Broken Fountain" (Building match = Chemistry) -> Score ~79 (80-1)
+      // Item 4: "Chemistry Lab" (Name match = Chemistry) -> Score 80 (Starts with)
+      
+      const results = filterUtilities(rankedMock, [], "Chemistry")
+      expect(results[0].name).toBe("Chemistry Lab")
+    })
+
+    it("Edge Case: Empty strings after trim should return empty if no category", () => {
+        expect(filterUtilities(mockUtilities, [], "   ")).toHaveLength(0)
+    })
 
     it("should filter by search query (building)", () => {
       const selected: UtilityType[] = ["water", "microwave"]
