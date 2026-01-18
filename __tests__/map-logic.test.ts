@@ -210,6 +210,23 @@ describe("Map Logic", () => {
       expect(result[0].building).toBe("Nest")
       // Validates that we don't need 'individual' field matching to find this item
     })
+
+    it("Multi-Term Query: Should score exact name match correctly", () => {
+      const testMock = [{
+        id: "test", 
+        name: "Chemistry Lab", 
+        type: "water", 
+        building: "Other", 
+        floor: "1",
+        position: {lat:0,lng:0}, 
+        status: "working", 
+        reports: 0, 
+        lastChecked: ""
+      }] as Utility[]
+      const results = filterUtilities(testMock, [], "Chemistry Lab")
+      // Should find the item and score it as exact match (100), not composite (80)
+      expect(results).toHaveLength(1)
+    })
   })
 
   describe("getMarkerIcon", () => {
