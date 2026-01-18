@@ -106,7 +106,7 @@ export const filterUtilities = (utilities: Utility[], selectedCategories: Utilit
       let score = 0;
 
       // Check multi-field match (e.g. "micro macleod")
-      // Only runs if query has multiple words
+      // Performance optimization: Only check multi-term logic if query has multiple words
       if (queryTerms.length > 1) {
          // Create a composite string of all searchable text for this item
          const fullText = `${nameL} ${buildingL} ${floorL} ${typeL}`;
@@ -116,27 +116,41 @@ export const filterUtilities = (utilities: Utility[], selectedCategories: Utilit
          }
       }
 
-      // Calculate individual field scores regardless of multi-term match
+      // Calculate individual field scores with early exit optimization
+      // Performance: Check fields in priority order and exit early on perfect match (100)
       const nameScore = getRelevanceScore(nameL);
-      const buildingScore = getRelevanceScore(buildingL);
-      const floorScore = getRelevanceScore(floorL); 
-      const typeScore = getRelevanceScore(typeL);
-
-      // Take the maximum score found across any field
-      // Matches in 'Name' are prioritized (Weight: 1.0)
-      // Matches in 'Building' get slight penalty (Weight: 0.9)
-      // Matches in 'Type' get medium penalty (Weight: 0.8)
-      // Matches in 'Floor' (description) get larger penalty (Weight: 0.7) to prioritize main titles
-      // This ensures that for the same match quality (e.g. "exact match"), the fields are prioritized correctly
-      const individualScore = Math.max(
-        nameScore, 
-        Math.floor(buildingScore * 0.9),
-        Math.floor(typeScore * 0.8),
-        Math.floor(floorScore * 0.7) 
-      );
-      
-      // Use the highest score from either multi-term or single-field match
-      score = Math.max(score, individualScore);
+      if (nameScore === 100) {
+        // Perfect match found in name field - no need to check other fields
+        score = Math.max(score, 100);
+      } else {
+        const buildingScore = getRelevanceScore(buildingL);
+        if (buildingScore === 100) {
+          // Perfect match in building - apply weight (0.9) and skip remaining fields
+          score = Math.max(score, 90);
+        } else {
+          const typeScore = getRelevanceScore(typeL);
+          if (typeScore === 100) {
+            // Perfect match in type - apply weight (0.8) and skip remaining fields
+            score = Math.max(score, 80);
+          } else {
+            const floorScore = getRelevanceScore(floorL);
+            // Calculate maximum across all fields with appropriate weights
+            // Matches in 'Name' are prioritized (Weight: 1.0)
+            // Matches in 'Building' get slight penalty (Weight: 0.9)
+            // Matches in 'Type' get medium penalty (Weight: 0.8)
+            // Matches in 'Floor' (description) get larger penalty (Weight: 0.7) to prioritize main titles
+            const individualScore = Math.max(
+              nameScore, 
+              Math.floor(buildingScore * 0.9),
+              Math.floor(typeScore * 0.8),
+              Math.floor(floorScore * 0.7) 
+            );
+            
+            // Use the highest score from either multi-term or single-field match
+            score = Math.max(score, individualScore);
+          }
+        }
+      }
 
       return { utility: u, score: score };
     })
