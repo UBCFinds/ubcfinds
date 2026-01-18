@@ -81,13 +81,6 @@ export const filterUtilities = (utilities: Utility[], selectedCategories: Utilit
   const getRelevanceScore = (t: string): number => {
     if (!t) return 0;
     
-    // Check for multi-term query (e.g. "micro macleod")
-    if (queryTerms.length > 1) {
-       // All terms must match somewhere in the text to count as a match
-       const allTermsMatch = queryTerms.every(term => t.includes(term));
-       if (allTermsMatch) return 50; // High score but lower than exact single-phrase match
-    }
-
     if (t === normalizedQuery) return 100;
     if (t.startsWith(normalizedQuery)) return 80;
     if (t.split(" ").some(word => word.startsWith(normalizedQuery))) return 60;
