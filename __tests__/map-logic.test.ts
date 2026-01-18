@@ -29,7 +29,7 @@ const mockUtilities: Utility[] = [
     id: "3",
     name: "Broken Fountain",
     type: "water",
-    building: "Chemistry",
+    building: "Chemistry Block B", // Modified to be "Starts With" match, not "Exact" match
     floor: "1",
     position: { lat: 0, lng: 0 },
     status: "reported",
