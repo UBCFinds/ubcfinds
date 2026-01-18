@@ -54,7 +54,7 @@ export const getCategoryColor = (type: UtilityType): string => {
  * 
  * @param utilities - The list of utilities to filter.
  * @param selectedCategories - The list of currently selected category IDs.
- * @param searchQuery - The search string to filter by name or building.
+ * @param searchQuery - The search string to filter utilities by name, building, floor, or type.
  * @effects Returns a sorted array of utilities ranked by relevance score.
  */
 export const filterUtilities = (utilities: Utility[], selectedCategories: UtilityType[], searchQuery: string): Utility[] => {
