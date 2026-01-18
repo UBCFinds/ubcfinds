@@ -2,7 +2,7 @@
 
 // Import all libraries and components
 import { useState, useEffect } from "react"
-import { Search, Droplet, Bike, MapPin, AlertCircle, Coffee, Zap, Menu, X, ZoomIn, ZoomInIcon, MicrowaveIcon, ParkingCircle, BusFrontIcon, DollarSign, HelpCircle } from "lucide-react"
+import { Menu, X, HelpCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -370,7 +370,6 @@ const updateUtilitiesWithReports = async () => {
         {!isMobile && (
           <>
             <Button
-              id="tour-sidebar-toggle"
               variant="default"
               size="icon"
               className={`absolute top-20 z-50 ${sidebarOpen ? "left-[330px]" : "left-[10px]"} bg-black/70 transition-all`}
@@ -471,11 +470,11 @@ const updateUtilitiesWithReports = async () => {
         // onGetDirections is removed because the component handles it internally now
       />
     )}
-  <TutorialManager 
-    run={runTour} 
-    onFinish={() => setRunTour(false)} 
-    setOpenMobileDrawer={setMobileDrawerOpen} 
-  />
+    <TutorialManager 
+      run={runTour} 
+      onFinish={() => setRunTour(false)} 
+      setOpenMobileDrawer={setMobileDrawerOpen} 
+    />
     
     {/* Report Modal */}
     {showReportModal && (
