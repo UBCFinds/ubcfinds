@@ -138,6 +138,32 @@ describe("Map Logic", () => {
       expect(results[0].name).toBe("Chemistry Lab")
     })
 
+    it("Relevance Ranking with Category: Should rank correctly within selected category", () => {
+      const rankedMock = [
+          ...mockUtilities,
+          {
+            id: "4", name: "Chemistry Lab", type: "water", building: "Other", floor: "", 
+            position: {lat:0,lng:0}, status: "working", reports: 0, lastChecked: ""
+          },
+          {
+            id: "5", name: "Chemistry Lab", type: "microwave", building: "Other", floor: "", 
+            position: {lat:0,lng:0}, status: "working", reports: 0, lastChecked: ""
+          }
+      ] as Utility[]
+
+      // Search "Chemistry" with category "water"
+      // Item 3: "Broken Fountain" (type: water, Building match "Chemistry Block B") -> Score ~72 (80 * 0.9)
+      // Item 4: "Chemistry Lab" (type: water, Name match "Chemistry Lab") -> Score 80 (Starts with)
+      // Item 5: "Chemistry Lab" (type: microwave) -> Should be excluded despite high score
+      
+      const results = filterUtilities(rankedMock, ["water"], "Chemistry")
+      
+      expect(results).toHaveLength(2)
+      expect(results[0].id).toBe("4") // Higher score (Name match)
+      expect(results[1].id).toBe("3") // Lower score (Building match)
+      expect(results.some(u => u.id === "5")).toBe(false) // Wrong category
+    })
+
     it("Edge Case: Empty strings after trim should return empty if no category", () => {
         expect(filterUtilities(mockUtilities, [], "   ")).toHaveLength(0)
     })
