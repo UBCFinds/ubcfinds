@@ -123,14 +123,16 @@ export const filterUtilities = (utilities: Utility[], selectedCategories: Utilit
       const typeScore = getRelevanceScore(typeL);
 
       // Take the maximum score found across any field
-      // Matches in 'Name' are prioritized (no penalty)
-      // Matches in 'Building' get slight penalty (-1)
-      // Matches in 'Floor' (description) get larger penalty (-10) to prioritize main titles
+      // Matches in 'Name' are prioritized (Weight: 1.0)
+      // Matches in 'Building' get slight penalty (Weight: 0.9)
+      // Matches in 'Type' get medium penalty (Weight: 0.8)
+      // Matches in 'Floor' (description) get larger penalty (Weight: 0.7) to prioritize main titles
+      // This ensures that for the same match quality (e.g. "exact match"), the fields are prioritized correctly
       const individualScore = Math.max(
         nameScore, 
-        buildingScore > 0 ? buildingScore - 1 : 0,
-        floorScore > 0 ? floorScore - 10 : 0,
-        typeScore > 0 ? typeScore - 5 : 0 // Matching type (e.g. "microwave")
+        Math.floor(buildingScore * 0.9),
+        Math.floor(typeScore * 0.8),
+        Math.floor(floorScore * 0.7) 
       );
       
       // Use the highest score from either multi-term or single-field match
