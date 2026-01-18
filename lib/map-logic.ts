@@ -125,13 +125,13 @@ export const filterUtilities = (utilities: Utility[], selectedCategories: Utilit
       } else {
         const buildingScore = getRelevanceScore(buildingL);
         if (buildingScore === 100) {
-          // Perfect match in building - apply weight (0.9) and skip remaining fields
-          score = Math.max(score, 90);
+          // Perfect match in building - apply weight (0.9) and compare with name score
+          score = Math.max(score, nameScore, 90);
         } else {
           const typeScore = getRelevanceScore(typeL);
           if (typeScore === 100) {
-            // Perfect match in type - apply weight (0.8) and skip remaining fields
-            score = Math.max(score, 80);
+            // Perfect match in type - apply weight (0.8) and compare with previous fields
+            score = Math.max(score, nameScore, Math.floor(buildingScore * 0.9), 80);
           } else {
             const floorScore = getRelevanceScore(floorL);
             // Calculate maximum across all fields with appropriate weights
