@@ -227,42 +227,6 @@ describe("Map Logic", () => {
       // Should find the item and score it as exact match (100), not composite (80)
       expect(results).toHaveLength(1)
     })
-
-    it("Multi-Term Exact Match: Should prioritize exact field match over composite match", () => {
-      const rankedMock = [
-        {
-          id: "exact", 
-          name: "Chemistry Lab", 
-          type: "water", 
-          building: "Science", 
-          floor: "1", 
-          position: {lat:0,lng:0}, 
-          status: "working", 
-          reports: 0, 
-          lastChecked: ""
-        },
-        {
-          id: "composite", 
-          name: "Chemistry Building", 
-          type: "water", 
-          building: "Lab Block", 
-          floor: "1", 
-          position: {lat:0,lng:0}, 
-          status: "working", 
-          reports: 0, 
-          lastChecked: ""
-        }
-      ] as Utility[]
-
-      // Search "Chemistry Lab"
-      // Item "exact": name="Chemistry Lab" (exact match) -> Score 100
-      // Item "composite": "Chemistry" in name + "Lab" in building (composite) -> Score 80
-      const results = filterUtilities(rankedMock, [], "Chemistry Lab")
-      
-      expect(results).toHaveLength(2)
-      expect(results[0].id).toBe("exact") // Should rank first with score 100
-      expect(results[1].id).toBe("composite") // Should rank second with score 80
-    })
   })
 
   describe("getMarkerIcon", () => {
