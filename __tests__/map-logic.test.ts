@@ -114,10 +114,24 @@ describe("Map Logic", () => {
     })
     
     it("Deep Property Search: Should search in Type", () => {
-        // Searching "microwave" should find the Microwave item
-        const results = filterUtilities(mockUtilities, [], "microwave")
+        const typeMock = [
+            {
+                id: "type-test",
+                name: "Generic Heater",
+                type: "microwave", 
+                building: "Test", 
+                floor: "1", 
+                position: { lat: 0, lng: 0 }, 
+                status: "working", 
+                reports: 0, 
+                lastChecked: ""
+            }
+        ] as Utility[]
+
+        // Searching "microwave" should find the item solely because of its type
+        const results = filterUtilities(typeMock, [], "microwave")
         expect(results).toHaveLength(1)
-        expect(results[0].name).toBe("Microwave")
+        expect(results[0].name).toBe("Generic Heater")
     })
 
     it("Relevance Ranking: Name match should prioritize over lower matches", () => {
@@ -131,7 +145,7 @@ describe("Map Logic", () => {
       ] as Utility[]
 
       // Search "Chemistry"
-      // Item 3: "Broken Fountain" (Building match = "Chemistry Block B", starts with "Chemistry") -> Score ~79 (80-1)
+      // Item 3: "Broken Fountain" (Building match = "Chemistry Block B", starts with "Chemistry") -> Score ~72 (80 * 0.9)
       // Item 4: "Chemistry Lab" (Name match = Chemistry) -> Score 80 (Starts with)
       
       const results = filterUtilities(rankedMock, [], "Chemistry")
@@ -186,6 +200,15 @@ describe("Map Logic", () => {
       const selected: UtilityType[] = ["water"]
       const result = filterUtilities(mockUtilities, selected, "Space Station")
       expect(result).toHaveLength(0)
+    })
+
+    it("Multi-Term Query: Should favor matches even if term-splitting single field scoring is disabled", () => {
+      // "water nest" -> "water" matches type, "nest" matches building.
+      // Current logic: uses composite match for >1 terms. Score = 80.
+      const result = filterUtilities(mockUtilities, [], "water nest")
+      expect(result).toHaveLength(1)
+      expect(result[0].building).toBe("Nest")
+      // Validates that we don't need 'individual' field matching to find this item
     })
   })
 

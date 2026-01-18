@@ -116,24 +116,32 @@ export const filterUtilities = (utilities: Utility[], selectedCategories: Utilit
          }
       }
 
-      // Calculate individual field scores regardless of multi-term match
-      const nameScore = getRelevanceScore(nameL);
-      const buildingScore = getRelevanceScore(buildingL);
-      const floorScore = getRelevanceScore(floorL); 
-      const typeScore = getRelevanceScore(typeL);
+      // Calculate individual field scores.
+      // NOTE: For multi-term queries (e.g. "broken chemistry"), we intentionally
+      //       DO NOT use per-field phrase scoring via getRelevanceScore, because
+      //       it operates on the full normalized query string. Instead, multi-term
+      //       queries are scored using the composite multi-field logic above.
+      //       Single-term queries continue to use detailed per-field scoring.
+      let individualScore = 0;
+      if (queryTerms.length === 1) {
+        const nameScore = getRelevanceScore(nameL);
+        const buildingScore = getRelevanceScore(buildingL);
+        const floorScore = getRelevanceScore(floorL); 
+        const typeScore = getRelevanceScore(typeL);
 
-      // Take the maximum score found across any field
-      // Matches in 'Name' are prioritized (Weight: 1.0)
-      // Matches in 'Building' get slight penalty (Weight: 0.9)
-      // Matches in 'Type' get medium penalty (Weight: 0.8)
-      // Matches in 'Floor' (description) get larger penalty (Weight: 0.7) to prioritize main titles
-      // This ensures that for the same match quality (e.g. "exact match"), the fields are prioritized correctly
-      const individualScore = Math.max(
-        nameScore, 
-        Math.floor(buildingScore * 0.9),
-        Math.floor(typeScore * 0.8),
-        Math.floor(floorScore * 0.7) 
-      );
+        // Take the maximum score found across any field
+        // Matches in 'Name' are prioritized (Weight: 1.0)
+        // Matches in 'Building' get slight penalty (Weight: 0.9)
+        // Matches in 'Type' get medium penalty (Weight: 0.8)
+        // Matches in 'Floor' (description) get larger penalty (Weight: 0.7) to prioritize main titles
+        // This ensures that for the same match quality (e.g. "exact match"), the fields are prioritized correctly
+        individualScore = Math.max(
+          nameScore, 
+          Math.floor(buildingScore * 0.9),
+          Math.floor(typeScore * 0.8),
+          Math.floor(floorScore * 0.7) 
+        );
+      }
       
       // Use the highest score from either multi-term or single-field match
       score = Math.max(score, individualScore);
