@@ -109,7 +109,9 @@ export function TutorialManager({ run, onFinish, setOpenMobileDrawer }: Tutorial
       // If we are on step 2 (index 1) and moving to step 3 on mobile, open the drawer
       if (index === 1 && action === ACTIONS.NEXT && isMobile && setOpenMobileDrawer) {
         setOpenMobileDrawer(true)
-        // Add a small delay to ensure the drawer content is rendered
+        // Wait for the drawer animation to complete before advancing to the next step
+        // This ensures the target element (#tour-categories) is visible in the DOM
+        // Typical drawer animations take 200-300ms, so we wait 300ms to be safe
         setTimeout(() => {
           const nextStep = index + 1
           setStepIndex(nextStep)
