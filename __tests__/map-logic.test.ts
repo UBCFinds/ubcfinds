@@ -97,8 +97,14 @@ describe("Map Logic", () => {
       expect(results[0].id).toBe("3") // Broken Fountain in Chemistry
     })
 
+    it("Multi-Term Query: Should match 'chemistry broken' (reverse order)", () => {
+      const results = filterUtilities(mockUtilities, [], "chemistry broken")
+      expect(results).toHaveLength(1)
+      expect(results[0].id).toBe("3")
+    })
+
     it("Deep Property Search: Should search in floor/description", () => {
-        // Search for "Basement" which is only in the floor/desc field of item 2
+        // Search for "Basement" which is only in the floor field of item 2
         const results = filterUtilities(mockUtilities, [], "Basement")
         
         expect(results).toHaveLength(1)
