@@ -96,6 +96,7 @@ export function CampusMap() {
   const [mapLoaded, setMapLoaded] = useState(false)
   const [runTour, setRunTour] = useState(false)
   const isMobile = useIsMobile();
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
 
   /**
    * Generates the icon for the user's current location.
@@ -389,7 +390,7 @@ const updateUtilitiesWithReports = async () => {
   
         {/* MOBILE DRAWER */}
         {isMobile && !selectedUtility && (
-          <Drawer>
+          <Drawer open={mobileDrawerOpen} onOpenChange={setMobileDrawerOpen}>
             <DrawerTrigger asChild>
             <Button id="tour-mobile-drawer-trigger" className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 rounded-full shadow-xl px-10 py-6 text-lg font-bold bg-slate-900 text-slate-50 hover:bg-slate-800 active:scale-95 transition-all">
               <Menu className="mr-2 h-5 w-5" /> Utility List
@@ -470,7 +471,11 @@ const updateUtilitiesWithReports = async () => {
         // onGetDirections is removed because the component handles it internally now
       />
     )}
-  <TutorialManager run={runTour} onFinish={() => setRunTour(false)} />
+  <TutorialManager 
+    run={runTour} 
+    onFinish={() => setRunTour(false)} 
+    setOpenMobileDrawer={setMobileDrawerOpen} 
+  />
     
     {/* Report Modal */}
     {showReportModal && (

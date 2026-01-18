@@ -8,9 +8,10 @@ import { CustomTooltip } from "@/components/custom-tooltip"
 interface TutorialManagerProps {
   run: boolean
   onFinish: () => void
+  setOpenMobileDrawer?: (open: boolean) => void
 }
 
-export function TutorialManager({ run, onFinish }: TutorialManagerProps) {
+export function TutorialManager({ run, onFinish, setOpenMobileDrawer }: TutorialManagerProps) {
   const isMobile = useIsMobile()
   const [steps, setSteps] = useState<Step[]>([])
   const [mounted, setMounted] = useState(false)
@@ -40,7 +41,9 @@ export function TutorialManager({ run, onFinish }: TutorialManagerProps) {
       {
         target: isMobile ? "#tour-mobile-drawer-trigger" : "#tour-search", // Mobile needs to target the button to open drawer
         title: "Search & Filter",
-        content: "Type here to search for specific buildings or locations.",
+        content: isMobile 
+          ? "Tap 'Next' to open the utility list where you can search and filter."
+          : "Type here to search for specific buildings or locations.",
         placement: isMobile ? "top" : "right",
       },
       {
@@ -74,6 +77,12 @@ export function TutorialManager({ run, onFinish }: TutorialManagerProps) {
     } else if (type === EVENTS.STEP_AFTER || type === EVENTS.TARGET_NOT_FOUND) {
       // Controlled Logic: Only advance index explicitly on Next/Prev actions
       // This ignores clicks on the target itself
+      
+      // If we are on step 2 (index 1) and moving to step 3 on mobile, open the drawer
+      if (index === 1 && action === ACTIONS.NEXT && isMobile && setOpenMobileDrawer) {
+        setOpenMobileDrawer(true)
+      }
+
       const nextStep = index + (action === ACTIONS.PREV ? -1 : 1)
 
       if (action === ACTIONS.NEXT || action === ACTIONS.PREV) {
