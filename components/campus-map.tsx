@@ -356,7 +356,6 @@ const updateUtilitiesWithReports = async () => {
               <HelpCircle className="h-5 w-5" />
             </Button>
             <Button
-              id="tour-report-btn"
               onClick={() => setShowReportModal(true)}
               size="icon"
               className="bg-[#FFA500] hover:bg-[#e59400] text-white rounded-full w-8 h-8"
@@ -399,7 +398,7 @@ const updateUtilitiesWithReports = async () => {
             setActiveSnapPoint={setSnap}
           >
             <DrawerTrigger asChild>
-            <Button id="tour-mobile-drawer-trigger" className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 rounded-full shadow-xl px-10 py-6 text-lg font-bold bg-slate-900 text-slate-50 hover:bg-slate-800 active:scale-95 transition-all">
+            <Button className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 rounded-full shadow-xl px-10 py-6 text-lg font-bold bg-slate-900 text-slate-50 hover:bg-slate-800 active:scale-95 transition-all">
               <Menu className="mr-2 h-5 w-5" /> Utility List
             </Button>
             </DrawerTrigger>
