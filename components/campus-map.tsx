@@ -356,7 +356,6 @@ const updateUtilitiesWithReports = async () => {
               <HelpCircle className="h-5 w-5" />
             </Button>
             <Button
-              id="tour-report-btn"
               onClick={() => setShowReportModal(true)}
               size="icon"
               className="bg-[#FFA500] hover:bg-[#e59400] text-white rounded-full w-8 h-8"
