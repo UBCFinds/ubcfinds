@@ -98,7 +98,7 @@ export function CampusMap() {
   const [showOnboarding, setShowOnboarding] = useState(false)
   const isMobile = useIsMobile();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
-  const [snap, setSnap] = useState<number | string | null>(0.4)
+  const [snap, setSnap] = useState<number | string | null>(0.1)
 
   /**
    * Generates the icon for the user's current location.
@@ -391,19 +391,13 @@ const updateUtilitiesWithReports = async () => {
   
         {/* MOBILE DRAWER */}
         {isMobile && !selectedUtility && (
-          <Drawer 
-            open={mobileDrawerOpen} 
-            onOpenChange={setMobileDrawerOpen}
-            snapPoints={[0.4, 0.85]}
-            activeSnapPoint={snap}
-            setActiveSnapPoint={setSnap}
-          >
+          <Drawer>
             <DrawerTrigger asChild>
             <Button className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 rounded-full shadow-xl px-10 py-6 text-lg font-bold bg-slate-900 text-slate-50 hover:bg-slate-800 active:scale-95 transition-all">
               <Menu className="mr-2 h-5 w-5" /> Utility List
             </Button>
             </DrawerTrigger>
-            <DrawerContent>
+            <DrawerContent className="h-[85vh]">
               <DrawerHeader className="text-left px-4">
                 <DrawerTitle>Campus Utilities</DrawerTitle>
               </DrawerHeader>
@@ -422,6 +416,7 @@ const updateUtilitiesWithReports = async () => {
           <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ""}>
           <GoogleMap
             mapContainerStyle={mapContainerStyle}
+            mapContainerClassName="h-full w-full"
             center={getInitialCenter()} // Use the checked location
             zoom={userLocation && isPointInUBC(userLocation.lat, userLocation.lng) ? 16 : 15}
             options={mapOptions}
