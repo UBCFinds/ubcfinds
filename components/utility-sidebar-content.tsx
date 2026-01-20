@@ -44,7 +44,7 @@ export function UtilitySidebarContent({
       {/* 2. Categories with Counts */}
       <div>
         <h3 className="text-sm font-semibold mb-3">Filter by Category</h3>
-        <div className="space-y-2" id="tour-categories">
+        <div className="space-y-2">
           {categories.map((category) => {
             const Icon = category.icon
             const isSelected = selectedCategories.includes(category.id as UtilityType)
