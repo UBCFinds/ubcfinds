@@ -46,7 +46,7 @@ const steps = [
     description: "Found something broken? Help the community by reporting it.",
     icon: AlertCircle,
     details: [
-      "Click the orange ! button in the top-right corner",
+      "Click the orange ! button in the top-right area of the header",
       "Select the utility and describe the issue",
       "Other students will see your report"
     ]

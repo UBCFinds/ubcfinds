@@ -359,6 +359,7 @@ const updateUtilitiesWithReports = async () => {
               onClick={() => setShowReportModal(true)}
               size="icon"
               className="bg-[#FFA500] hover:bg-[#e59400] text-white rounded-full w-8 h-8"
+              aria-label="Report an issue"
             >
               <span className="text-lg font-bold">!</span>
             </Button>
