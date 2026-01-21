@@ -9,13 +9,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Utility } from "@/components/utility-list" // Adjust path as needed
 
 import { supabase } from "@/lib/supabase";
 import { id } from "date-fns/locale"
 import { set } from "date-fns"
 
 interface ReportModalProps {
-  utility: { name: string; building: string; id: string } | null
+  utility: Utility | null
+
   onClose: () => void
 }
 
@@ -82,7 +84,7 @@ export function ReportModal({ utility, onClose }: ReportModalProps) {
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>
-              <CardTitle className="text-balance">Report an Issue</CardTitle>
+              <CardTitle className="text-balance">{utility ? "Report a Utility" : "General Report"}</CardTitle>
               {utility && (
                 <CardDescription className="text-pretty">
                   {utility.name} at {utility.building}
@@ -127,7 +129,20 @@ export function ReportModal({ utility, onClose }: ReportModalProps) {
 
               <div className="space-y-3">
                 <Label>What's the issue?</Label>
+
                 <RadioGroup value={issueType} onValueChange={setIssueType}>
+    
+                {/* Suggest Fixed Option (Only if utility is selected) */}
+                {utility && utility.status != "working" &&(
+                  <div className="flex items-center space-x-2 p-2.5 rounded-xl bg-green-500/10 border border-green-500/20 mb-2">
+                    <RadioGroupItem value="working-now" id="working-now" className="border-green-600 text-green-600" />
+                    <Label htmlFor="working-now" className="font-semibold cursor-pointer text-green-700">
+                      Working / Fixed
+                    </Label>
+                  </div>
+                )}
+                
+                <RadioGroup value={issueType} onValueChange={setIssueType}/>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="not-working" id="not-working" />
                     <Label htmlFor="not-working" className="font-normal cursor-pointer">

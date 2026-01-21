@@ -19,6 +19,7 @@ export const colors = {
   yellow: "#FFA500", // reported
   dark_brown: "#393424", // selected outline
   white: "#FFFFFF", // default outline
+  red: "#b91c1c",
 }
 
 /**
@@ -157,15 +158,25 @@ export const getMarkerIcon = (utility: Utility, selectedUtilityId: string | null
   if (!googleMaps) {
     return undefined
   }
-
+  let baseColor = colors.blue;
   // Get color based on utility status
-  const baseColor = utility.status === "reported" ? colors.yellow : colors.blue
-
+  // Yellow (Reported / Warning)
+  if (utility.status === "reported") {
+    baseColor = colors.yellow; 
+  } 
+  // Red (Broken / Avoid)
+  else if (utility.status === "broken") {
+    baseColor = colors.red; 
+  }
+  // Grey (Maintenance)
+  else if (utility.status === "maintenance") {
+    baseColor = "#6B7280"; 
+  }
   return {
     path: googleMaps.SymbolPath.CIRCLE,
     fillColor: baseColor,
     fillOpacity: 1,
-    strokeColor: selectedUtilityId == utility.id ? colors.dark_brown : colors.white, // green outline when selected
+    strokeColor: selectedUtilityId == utility.id ? colors.dark_brown : colors.white, // outline when selected
     strokeWeight: 2,
     scale: selectedUtilityId == utility.id ? 12 : 8,
   }
