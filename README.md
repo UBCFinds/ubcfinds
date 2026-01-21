@@ -38,6 +38,5 @@ The failure to quickly locate essential utilities, such as water refill stations
 * **UI Components:** Shadcn/UI (Radix Primitives)
 * **Database:** Supabase (PostgreSQL)
 * **Maps API:** Google Maps Platform API
-* **Onboarding:** React Joyride (Configured for React 19 Compatibility)
 
 ---
