@@ -40,3 +40,35 @@ The failure to quickly locate essential utilities, such as water refill stations
 * **Maps API:** Google Maps Platform API
 
 ---
+
+## 📊 Data Processing Pipeline
+
+UBC Finds includes a robust data processing pipeline for integrating external datasets into the application. This infrastructure was built to safely import and validate TransLink's GTFS (General Transit Feed Specification) data for bus stop locations across campus.
+
+### Data Sources
+* **TransLink GTFS Data:** Downloaded from [TransLink's Developer Resources](https://www.translink.ca/about-us/doing-business-with-translink/app-developer-resources/gtfs/gtfs-data) (google_transit.zip)
+* **Manual Collection:** Water fountains, emergency services, and other utilities manually surveyed across campus
+
+### Processing Infrastructure
+The `data-processing/` directory contains scripts and source data organized for repeatable data imports:
+
+```
+data-processing/
+├── scripts/
+│   ├── import-bus-stops.ts        # GTFS parser and UBC boundary filter
+│   ├── import-bus-stops-output.ts # Generated output (review before import)
+│   └── export-to-csv.ts           # Export utilities to CSV format
+└── source-data/
+    ├── google_transit/            # TransLink GTFS files
+    └── utilities.csv              # Exported utility data
+```
+
+### Safety-First Approach
+Rather than directly modifying `components/utility-list.ts`, the import scripts generate intermediate output files for manual review. This two-step process:
+1. **Generates** validated TypeScript code in `import-bus-stops-output.ts`
+2. **Allows review** of the data before integration
+3. **Prevents errors** from corrupting the production utility database
+
+This pattern makes the data processing pipeline **repeatable and auditable** for future dataset imports (e.g., updated GTFS feeds, new utility categories).
+
+---
