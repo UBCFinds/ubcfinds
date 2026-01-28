@@ -155,36 +155,90 @@ export function CampusMap() {
    *          Updates the local utilities state, setting the reports count 
    *          and changing status to "reported" if reports > 0.
    */
-const updateUtilitiesWithReports = async () => {
-  try {
-    // Fetch all reports
-    const { data: reports, error } = await supabase
-      .from("reports")
-      .select("util_id");
-    console.log("Fetched reports:", reports);
-    if (error) {
-      console.error("Error fetching reports:", error);
-      return;
+  const updateUtilitiesWithReports = async () => {
+    try {
+      // 1. Fetch reports sorted by time (Oldest -> Newest)
+      // We need 'created_at' to update the lastChecked field
+      const { data: reports, error } = await supabase
+        .from("reports")
+        .select("util_id, issue_type, created_at")
+        .order('created_at', { ascending: true });
+  
+      if (error) {
+        console.error("Error fetching reports:", error);
+        return;
+      }
+  
+      // Trackers for our logic
+      const activeCounts: Record<string, number> = {};
+      const lastDates: Record<string, string> = {}; // Stores the most recent timestamp
+  
+      // Group reports by Utility ID
+      const reportsByUtil = reports?.reduce((acc, r) => {
+        if (!acc[r.util_id]) acc[r.util_id] = [];
+        acc[r.util_id].push(r);
+        return acc;
+      }, {} as Record<string, typeof reports>);
+  
+      // Process each utility
+      if (reportsByUtil) {
+        Object.keys(reportsByUtil).forEach((utilId) => {
+          let currentBrokenCount = 0;
+          let newestDateStr = "";
+  
+          reportsByUtil[utilId].forEach((report) => {
+            // A. Status Logic (Reset if fixed)
+            if (report.issue_type === 'working-now') {
+              currentBrokenCount = 0;
+            } else {
+              currentBrokenCount++;
+            }
+  
+            // B. Capture the latest date (Since we sorted ascending, the loop ends on the newest)
+            newestDateStr = report.created_at;
+          });
+  
+          activeCounts[utilId] = currentBrokenCount;
+          lastDates[utilId] = newestDateStr;
+        });
+      }
+  
+      // 2. Update the State
+      setUtilities(mockUtilities.map(u => {
+        // Format the date if we found one
+        let displayDate = u.lastChecked; // Default to the mock data if no reports exist
+        let util_status: "working" | "reported" | "broken" | "maintenance" = "working";
+        const count = activeCounts[u.id] || 0;
+        
+        if (lastDates[u.id]) {
+          const dateObj = new Date(lastDates[u.id]);
+          // Format: "Jan 21, 12:45 PM"
+          displayDate = dateObj.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric', 
+            hour: 'numeric', 
+            minute: '2-digit' 
+          });
+        }
+
+        if (count >= 2) {
+          util_status = "broken";
+        } else if (count >= 1) {
+          util_status = "reported";
+        }
+  
+        return {
+          ...u,
+          reports: count || 0,
+          status: util_status,
+          lastChecked: displayDate // 👈 The new dynamic date
+        };
+      }));
+  
+    } catch (err) {
+      console.error("Unexpected error updating utilities:", err);
     }
-
-    // Count number of reports per utility
-    const counts = reports?.reduce((acc, r) => {
-      acc[r.util_id] = (acc[r.util_id] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-    console.log("Report counts:", counts, reports);
-
-    // Update utilities state with report counts
-    setUtilities(mockUtilities.map(u => ({
-      ...u,
-      reports: counts?.[u.id] || 0,
-      status: counts?.[u.id] >= 3 ? "reported" : "working" // update marker color
-
-    })));
-  } catch (err) {
-    console.error("Unexpected error updating utilities:", err);
-  }
-};
+  };
   
 
   /**
@@ -454,8 +508,12 @@ const updateUtilitiesWithReports = async () => {
                   <span>Working</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
-                  <div className="h-3 w-3 rounded-full" style={{ backgroundColor: "#FFA500" }} />
+                  <div className="h-3 w-3 rounded-full" style={{ backgroundColor: colors.yellow }} />
                   <span>Reported Issue</span>
+                </div>                
+                <div className="flex items-center gap-2 text-xs">
+                  <div className="h-3 w-3 rounded-full" style={{ backgroundColor: colors.red }} />
+                  <span>Broken</span>
                 </div>
               </CardContent>
             </Card>

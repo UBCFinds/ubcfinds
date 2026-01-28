@@ -1,4 +1,3 @@
-
 // Defines what types of utilities are available and their structure
 export type UtilityType = "water" | "bike" | "washroom" | "emergency" | "food" | "microwave" | "bus" | "parking"
 
@@ -11,7 +10,7 @@ export interface Utility {
     building: string
     floor: string
     position: { lat: number; lng: number }
-    status: "working" | "reported" | "maintenance"
+    status: "working" | "reported" | "maintenance" | "broken"
     reports: number
     lastChecked: string
   }
