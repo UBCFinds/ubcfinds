@@ -48,21 +48,100 @@ export const getCategoryColor = (type: UtilityType): string => {
 }
 
 /**
- * Filters utilities based on selected categories and search query.
+ * Filters and ranks utilities based on search relevance and category selection.
+ * Implements a weighted scoring algorithm to prioritize exact and prefix matches,
+ * simulating a professional search engine experience.
  * 
  * @param utilities - The list of utilities to filter.
  * @param selectedCategories - The list of currently selected category IDs.
- * @param searchQuery - The search string to filter by name or building.
- * @effects Returns a filtered array of utilities that match both the category and search criteria.
+ * @param searchQuery - The search string to filter utilities by name, building, floor, or type.
+ * @effects Returns a sorted array of utilities ranked by relevance score.
  */
 export const filterUtilities = (utilities: Utility[], selectedCategories: UtilityType[], searchQuery: string): Utility[] => {
-  return utilities.filter(
-    (u) =>
-      selectedCategories.includes(u.type) &&
-      (searchQuery === "" ||
-        u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        u.building.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const normalizedQuery = searchQuery.toLowerCase().trim();
+  const hasSelection = selectedCategories.length > 0;
+  const hasQuery = normalizedQuery !== "";
+
+  // Optimization: If no search query, simply filter by category (no ranking needed)
+  if (!hasQuery) {
+     // If no categories selected, return empty (standard behavior to not clutter map)
+     if (!hasSelection) return [];
+     return utilities.filter(u => selectedCategories.includes(u.type));
+  }
+
+  const queryTerms = normalizedQuery.split(/\s+/).filter(q => q.length > 0);
+
+  // Relevance Scoring Helper
+  // Score 100: Exact Match
+  // Score 80: Starts With Query
+  // Score 60: Word/Token Starts With Query (e.g. "Tim" in "The Tim Hortons")
+  // Score 40: General Substring Match
+  // Score 0: No Match
+  const getRelevanceScore = (t: string): number => {
+    if (!t) return 0;
+    
+    if (t === normalizedQuery) return 100;
+    if (t.startsWith(normalizedQuery)) return 80;
+    if (t.split(" ").some(word => word.startsWith(normalizedQuery))) return 60;
+    if (t.includes(normalizedQuery)) return 40;
+    return 0;
+  };
+
+  return utilities
+    .map(u => {
+      // 1. Scope Constraint: Must match category selection (if specific categories are active)
+      // If no categories selected (Global Search), this check is bypassed (true).
+      const isInScope = hasSelection ? selectedCategories.includes(u.type) : true;
+      
+      if (!isInScope) return { utility: u, score: -1 };
+
+      // Pre-calculate lowercased fields to allow reuse in fullText and scoring matching
+      const nameL = u.name.toLowerCase();
+      const buildingL = u.building.toLowerCase();
+      const floorL = (u.floor || "").toLowerCase();
+      const typeL = u.type.toLowerCase();
+
+      // 2. Relevance Calculation
+      // We calculate scores for all searchable fields: Name, Building, Floor (Description), Type
+      let score = 0;
+
+      // Calculate individual field scores for the full query string.
+      // This ensures exact matches like "Chemistry Lab" in name field get score 100,
+      // even for multi-term queries.
+      const nameScore = getRelevanceScore(nameL);
+      const buildingScore = getRelevanceScore(buildingL);
+      const floorScore = getRelevanceScore(floorL); 
+      const typeScore = getRelevanceScore(typeL);
+
+      // Apply field weights: Name (1.0), Building (0.9), Type (0.8), Floor (0.7)
+      // This ensures that for the same match quality, fields are prioritized correctly
+      const individualScore = Math.max(
+        nameScore, 
+        Math.floor(buildingScore * 0.9),
+        Math.floor(typeScore * 0.8),
+        Math.floor(floorScore * 0.7) 
+      );
+
+      score = individualScore;
+
+      // For multi-term queries, also check composite cross-field matches
+      // (e.g. "broken chemistry" where "broken" is in name and "chemistry" is in building)
+      if (queryTerms.length > 1) {
+         // Create a composite string of all searchable text for this item
+         const fullText = `${nameL} ${buildingL} ${floorL} ${typeL}`;
+         // Check if EVERY search term appears SOMEWHERE in that composite string
+         if (queryTerms.every(term => fullText.includes(term))) {
+             // Use composite score only if it's better than individual field score
+             // This ensures "Chemistry Lab" exact match (100) beats composite match (80)
+             score = Math.max(score, 80);
+         }
+      }
+
+      return { utility: u, score: score };
+    })
+    .filter(item => item.score > 0)     // Filter out non-matches
+    .sort((a, b) => b.score - a.score)  // Sort by score descending (Best match first)
+    .map(item => item.utility);         // Extract/Flatten back to Utility[]
 }
 
 /**

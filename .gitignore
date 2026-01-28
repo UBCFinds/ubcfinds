@@ -28,3 +28,7 @@ next-env.d.ts
 
 *.csv
 google_transit/
+source-data/
+cpen221-docs/
+
+.swc/
