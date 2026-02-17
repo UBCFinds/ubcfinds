@@ -98,8 +98,13 @@ export function UtilitySidebarContent({
                 </div>
                 
                 {/* RESTORED: Report Badge for individual utilities */}
-                {utility.status === "reported" && utility.reports > 0 && (
+                {utility.status == "broken" && (
                   <Badge variant="destructive" className="text-[10px] px-1.5 py-0 h-5">
+                    {utility.reports} report{utility.reports > 1 ? "s" : ""}
+                  </Badge>
+                )}
+                {utility.status == "reported" && (
+                  <Badge className="bg-[#FFA500]/10 text-[#FFA500] border border-[#FFA500]/40 text-[10px] px-1.5 py-0 h-5">
                     {utility.reports} report{utility.reports > 1 ? "s" : ""}
                   </Badge>
                 )}
