@@ -1,24 +1,21 @@
 import { Utility, UtilityType } from "@/components/utility-list"
 import { Droplet, Bike, MapPin, AlertCircle, Coffee, Zap, MicrowaveIcon, ParkingCircle, BusFrontIcon } from "lucide-react"
 
-// Categories for filtering utilities 
 export const categories = [
   { id: "water", label: "Water Stations", icon: Droplet, color: "text-[#3B82F6]"},
   { id: "microwave", label: "Microwaves", icon: MicrowaveIcon, color: "text-[#8B5CF6]"},
   { id: "bike", label: "Bike Storage", icon: Bike, color: "text-[#10B981]"},
   { id: "emergency", label: "Emergency", icon: AlertCircle, color: "text-[#EF4444]" },
   { id: "food", label: "Food & Drink", icon: Coffee, color: "text-[#F97316]"},
-  //{ id: "charging", label: "Charging Stations", icon: Zap, color: "text-[#F59E0B]" },
   { id: "parking", label: "Parking Lots", icon: ParkingCircle, color: "text-yellow-400"},
-  { id: "bus", label: "Bus Stops and Stations", icon: BusFrontIcon, color: "text-[#ffffff]"},
-  //{ id: "bank", label: "ATMS and Banks", icon: DollarSign, color: "text-[#EC4899]"}
+  { id: "bus", label: "Bus Stops and Stations", icon: BusFrontIcon, color: "text-[#ffffff]"}
 ]
 
 export const colors = {
-  blue: "#3b82f6", // working
-  yellow: "#FFA500", // reported
-  dark_brown: "#393424", // selected outline
-  white: "#FFFFFF", // default outline
+  blue: "#3b82f6",
+  yellow: "#FFA500",
+  dark_brown: "#393424",
+  white: "#FFFFFF",
   red: "#b91c1c",
 }
 
@@ -63,21 +60,14 @@ export const filterUtilities = (utilities: Utility[], selectedCategories: Utilit
   const hasSelection = selectedCategories.length > 0;
   const hasQuery = normalizedQuery !== "";
 
-  // Optimization: If no search query, simply filter by category (no ranking needed)
   if (!hasQuery) {
-     // If no categories selected, return empty (standard behavior to not clutter map)
-     if (!hasSelection) return [];
-     return utilities.filter(u => selectedCategories.includes(u.type));
+    if (!hasSelection) return [];
+    return utilities.filter(u => selectedCategories.includes(u.type));
   }
 
   const queryTerms = normalizedQuery.split(/\s+/).filter(q => q.length > 0);
 
-  // Relevance Scoring Helper
-  // Score 100: Exact Match
-  // Score 80: Starts With Query
-  // Score 60: Word/Token Starts With Query (e.g. "Tim" in "The Tim Hortons")
-  // Score 40: General Substring Match
-  // Score 0: No Match
+  // Scores: 100 exact, 80 starts-with, 60 word-starts-with, 40 substring
   const getRelevanceScore = (t: string): number => {
     if (!t) return 0;
     
@@ -90,59 +80,40 @@ export const filterUtilities = (utilities: Utility[], selectedCategories: Utilit
 
   return utilities
     .map(u => {
-      // 1. Scope Constraint: Must match category selection (if specific categories are active)
-      // If no categories selected (Global Search), this check is bypassed (true).
       const isInScope = hasSelection ? selectedCategories.includes(u.type) : true;
-      
       if (!isInScope) return { utility: u, score: -1 };
 
-      // Pre-calculate lowercased fields to allow reuse in fullText and scoring matching
       const nameL = u.name.toLowerCase();
       const buildingL = u.building.toLowerCase();
       const floorL = (u.floor || "").toLowerCase();
       const typeL = u.type.toLowerCase();
 
-      // 2. Relevance Calculation
-      // We calculate scores for all searchable fields: Name, Building, Floor (Description), Type
-      let score = 0;
-
-      // Calculate individual field scores for the full query string.
-      // This ensures exact matches like "Chemistry Lab" in name field get score 100,
-      // even for multi-term queries.
       const nameScore = getRelevanceScore(nameL);
       const buildingScore = getRelevanceScore(buildingL);
-      const floorScore = getRelevanceScore(floorL); 
+      const floorScore = getRelevanceScore(floorL);
       const typeScore = getRelevanceScore(typeL);
 
-      // Apply field weights: Name (1.0), Building (0.9), Type (0.8), Floor (0.7)
-      // This ensures that for the same match quality, fields are prioritized correctly
-      const individualScore = Math.max(
-        nameScore, 
+      // Name counts most, then building, type, floor
+      let score = Math.max(
+        nameScore,
         Math.floor(buildingScore * 0.9),
         Math.floor(typeScore * 0.8),
-        Math.floor(floorScore * 0.7) 
+        Math.floor(floorScore * 0.7)
       );
 
-      score = individualScore;
-
-      // For multi-term queries, also check composite cross-field matches
-      // (e.g. "broken chemistry" where "broken" is in name and "chemistry" is in building)
+      // Multi-term: boost if every term appears somewhere (e.g. "broken chemistry" across name + building)
       if (queryTerms.length > 1) {
-         // Create a composite string of all searchable text for this item
-         const fullText = `${nameL} ${buildingL} ${floorL} ${typeL}`;
-         // Check if EVERY search term appears SOMEWHERE in that composite string
-         if (queryTerms.every(term => fullText.includes(term))) {
-             // Use composite score only if it's better than individual field score
-             // This ensures "Chemistry Lab" exact match (100) beats composite match (80)
-             score = Math.max(score, 80);
-         }
+        const fullText = `${nameL} ${buildingL} ${floorL} ${typeL}`;
+        if (queryTerms.every(term => fullText.includes(term))) {
+          score = Math.max(score, 80);
+        }
       }
 
-      return { utility: u, score: score };
+      return { utility: u, score };
     })
-    .filter(item => item.score > 0)     // Filter out non-matches
-    .sort((a, b) => b.score - a.score)  // Sort by score descending (Best match first)
-    .map(item => item.utility);         // Extract/Flatten back to Utility[]
+    .filter(item => item.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map(item => item.utility);
 }
 
 /**
@@ -155,29 +126,20 @@ export const filterUtilities = (utilities: Utility[], selectedCategories: Utilit
  * @effects Returns a google.maps.Symbol object defining the marker's visual appearance.
  */
 export const getMarkerIcon = (utility: Utility, selectedUtilityId: string | null | undefined, googleMaps: any) => {
-  if (!googleMaps) {
-    return undefined
-  }
+  if (!googleMaps) return undefined;
+
   let baseColor = colors.blue;
-  // Get color based on utility status
-  // Yellow (Reported / Warning)
-  if (utility.status === "reported") {
-    baseColor = colors.yellow; 
-  } 
-  // Red (Broken / Avoid)
-  else if (utility.status === "broken") {
-    baseColor = colors.red; 
-  }
-  // Grey (Maintenance)
-  else if (utility.status === "maintenance") {
-    baseColor = "#6B7280"; 
-  }
+  if (utility.status === "reported") baseColor = colors.yellow;
+  else if (utility.status === "broken") baseColor = colors.red;
+  else if (utility.status === "maintenance") baseColor = "#6B7280";
+
+  const selected = selectedUtilityId === utility.id;
   return {
     path: googleMaps.SymbolPath.CIRCLE,
     fillColor: baseColor,
     fillOpacity: 1,
-    strokeColor: selectedUtilityId == utility.id ? colors.dark_brown : colors.white, // outline when selected
+    strokeColor: selected ? colors.dark_brown : colors.white,
     strokeWeight: 2,
-    scale: selectedUtilityId == utility.id ? 12 : 8,
-  }
+    scale: selected ? 12 : 8,
+  };
 }
